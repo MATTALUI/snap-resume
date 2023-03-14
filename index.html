@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+    integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredericka+the+Great&family=Ubuntu&display=swap"
+    rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"
+    integrity="sha512-Eezs+g9Lq4TCCq0wae01s9PuNWzHYoCMkE97e2qdkYthpI0pzC3UGB03lgEHn2XM85hDOUF6qgqqszs+iXU4UA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    :root {
+      --timberwolf: #DAD7CD;
+      --sage: #A3B18A;
+      --fern: #588157;
+      --hunter: #3A5A40;
+      --brunswick: #344E41;
+      --light: var(--timberwolf);
+      --dark: var(--brunswick);
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--light);
+      min-height: 100vh;
+      font-family: 'Ubuntu', sans-serif;
+      -webkit-box-sizing: border-box;
+      /* Safari/Chrome, other WebKit */
+      -moz-box-sizing: border-box;
+      /* Firefox, other Gecko */
+      box-sizing: border-box;
+      /* Opera/IE 8+ */
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: var(--hunter);
+      /* background: linear-gradient(var(--hunter), var(--fern)); */
+      height: 5rem;
+      display: flex;
+      align-items: center;
+      color: var(--light);
+      font-size: 2rem;
+      font-weight: 600;
+      justify-content: center;
+      grid-area: header;
+    }
+
+    main {
+      background-color: var(--sage);
+      min-height: 2rem;
+      grid-area: main;
+      padding: 1rem;
+      flex: 1;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .clickable {
+      cursor: pointer;
+    }
+
+    .sort-item {
+      border-top: 1px solid var(--sage);
+      border-bottom: 1px solid var(--sage);
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.25rem 0;
+    }
+
+    .form-control {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0.5rem;
+    }
+
+    .item-adder {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.25rem;
+    }
+
+    .item-adder input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 0.125rem 0.25rem;
+      border-radius: 0.25rem;
+      font-size: 1.125rem;
+    }
+
+    .item-adder button {
+      border: none;
+      outline: none;
+      background-color: var(--hunter);
+      margin-left: 0.5rem;
+      border-radius: 0.25rem;
+      color: var(--light);
+      height: 1.625rem;
+      width: 1.625rem;
+    }
+
+    .form-control input {
+      width: 100%;
+      border: none;
+      outline: none;
+      padding: 0.125rem 0.25rem;
+      border-radius: 0.25rem;
+      font-size: 1.125rem;
+    }
+
+    .collapse {
+      color: var(--light);
+      border: 1px solid var(--hunter);
+      transition: height 1s;
+      border-radius: 0.25rem;
+      height: 2.5rem;
+      overflow: hidden;
+      background-color: var(--light);
+      margin-bottom: 0.5rem;
+    }
+
+    .collapse__header {
+      font-size: 1.5rem;
+      background-color: var(--brunswick);
+      padding: 0.25rem 1rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .collapse i {
+      transition: transform 1s;
+    }
+
+    .collapse.expanded .collapse__header i {
+      transform: scale(-1);
+    }
+
+    .collapse__content {
+      padding: 0.25rem 1rem;
+      background-color: var(--light);
+      color: var(--brunswick);
+    }
+
+    #preview {
+      min-height: 2rem;
+      grid-area: preview;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #resume {
+      background-color: white;
+      border: 1px solid black;
+      box-shadow: 10px 5px 5px rgba(0, 0, 0, 0.25);
+      color: black;
+    }
+
+    #resume * {
+      margin: 0;
+      padding: 0;
+    }
+
+    @media (min-width: 500px) {
+      body {
+        display: grid;
+        grid-template-areas:
+          "header header"
+          "main preview";
+        grid-template-rows: 5rem auto;
+        grid-template-columns: 2fr 3fr;
+      }
+    }
+
+
+
+
+    /* STOLEN FROM https://loading.io/css/ */
+    .loader {
+      display: inline-block;
+      transform: translateZ(1px);
+    }
+
+    .loader>div {
+      display: inline-block;
+      width: 64px;
+      height: 64px;
+      margin: 8px;
+      border-radius: 50%;
+      background: var(--brunswick);
+      animation: loader 2.4s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    }
+
+    @keyframes loader {
+
+      0%,
+      100% {
+        animation-timing-function: cubic-bezier(0.5, 0, 1, 0.5);
+      }
+
+      0% {
+        transform: rotateY(0deg);
+      }
+
+      50% {
+        transform: rotateY(1800deg);
+        animation-timing-function: cubic-bezier(0, 0.5, 0.5, 1);
+      }
+
+      100% {
+        transform: rotateY(3600deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <span>Snap Resume</span>
+  </header>
+  <div id="preview"></div>
+  <main>
+    <form>
+      <div class="collapse contact">
+        <div class="collapse__header">
+          <span>Contact Information</span>
+          <i class="fa-solid fa-chevron-up"></i>
+        </div>
+        <div class="collapse__content">
+
+          <div class="form-control name">
+            <label>Name</label>
+            <input type="text" />
+          </div>
+
+          <div class="form-control title">
+            <label>Title</label>
+            <input type="text" />
+          </div>
+
+          <div class="form-control email">
+            <label>Email</label>
+            <input type="text" />
+          </div>
+
+          <div class="form-control phone">
+            <label>Phone Number</label>
+            <input type="text" />
+          </div>
+
+          <div class="form-control social">
+            <label>Social</label>
+            <input type="text" />
+          </div>
+
+          <div class="form-control city">
+            <label>City</label>
+            <input type="text" />
+          </div>
+
+        </div>
+      </div>
+
+      <div class="collapse experience">
+        <div class="collapse__header">
+          <span>Experience</span>
+          <i class="fa-solid fa-chevron-up"></i>
+        </div>
+        <div class="collapse__content">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro, consectetur doloribus, eum repellendus animi
+          saepe et quibusdam fugiat totam eligendi molestiae possimus! Ex vitae fuga molestiae, ipsam modi quae nobis.
+          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Molestiae voluptatum iste vero ex beatae earum
+          provident nesciunt eveniet culpa debitis, animi excepturi obcaecati suscipit deleniti pariatur quidem
+          repellendus ducimus doloremque. Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque veritatis,
+          inventore fuga doloremque architecto eveniet illum dolore at deserunt nemo! Minus tempore aperiam quaerat,
+          accusantium doloremque expedita. Eum, accusamus illo. Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          Maiores adipisci aperiam ullam eos culpa quam consectetur ratione amet voluptatibus pariatur aut praesentium,
+          doloremque obcaecati repudiandae ad voluptatum suscipit facere explicabo.
+        </div>
+      </div>
+
+      <div class="collapse skills">
+        <div class="collapse__header">
+          <span>Skills</span>
+          <i class="fa-solid fa-chevron-up"></i>
+        </div>
+        <div class="collapse__content">
+          <div id="skill-sorter">
+
+          </div>
+          <div class="item-adder">
+            <input type="text" />
+            <button><i class="fa-solid fa-plus"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="collapse education">
+        <div class="collapse__header">
+          <span>Education</span>
+          <i class="fa-solid fa-chevron-up"></i>
+        </div>
+        <div class="collapse__content">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro, consectetur doloribus, eum repellendus animi
+          saepe et quibusdam fugiat totam eligendi molestiae possimus! Ex vitae fuga molestiae, ipsam modi quae nobis.
+          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Molestiae voluptatum iste vero ex beatae earum
+          provident nesciunt eveniet culpa debitis, animi excepturi obcaecati suscipit deleniti pariatur quidem
+          repellendus ducimus doloremque. Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque veritatis,
+          inventore fuga doloremque architecto eveniet illum dolore at deserunt nemo! Minus tempore aperiam quaerat,
+          accusantium doloremque expedita. Eum, accusamus illo. Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          Maiores adipisci aperiam ullam eos culpa quam consectetur ratione amet voluptatibus pariatur aut praesentium,
+          doloremque obcaecati repudiandae ad voluptatum suscipit facere explicabo.
+        </div>
+      </div>
+    </form>
+  </main>
+  <script>
+    (async () => {
+      // const RESUME_DATA = {
+      //   name: "Matthew Hummer",
+      //   title: "Software Engineer",
+      //   email: "matthew.j.hummer@gmail.com",
+      //   phone: "1-970-888-2794",
+      //   city: "Fort Collins, Colorado",
+      //   social: "www.github.com/mattalui",
+      //   experiences: [
+      //     {
+      //       title: "Fullstack Developer", company: "Kapwing", dates: "May 2021 - Present", bullets: [
+      //         "Prototyped systems to discover viability in future feature work and implemented feature runway to increase team velocity",
+      //         "Self-organized major features and worked with product teams to set deadlines and delivery estimates",
+      //         "React, Express.js, Python/Flask, MongoDB, ImageMagick, FFMPEG, Google Cloud"
+      //       ],
+      //     },
+
+      //     {
+      //       title: "Fullstack Developer", company: "Nutrien Ag Solutions", dates: "May 2019 - May 2021", bullets: [
+      //         "Built, maintained, and supported React macrocomponents and subapplications for crop planning software",
+      //         "React Native, Express.js, Python/Django, AWS API Gateway, AWS Lambda, AWS DynamoDb, Golang, PostgreSQL",
+      //       ],
+      //     },
+
+      //     {
+      //       title: "Lead Developer", company: "Trace First", dates: "November 2017 - March 2022", bullets: [
+      //         "Coordinated with USDA committees to define official XML schema for sharing interstate livestock data",
+      //         "Reviewed code changes for and mentor junior team members to help facilitate growth and onboarding",
+      //         "Created network of integrated applications providing technological solutions to state head agencies",
+      //         "Carefully designed database relations to maximize querying efficiencies",
+      //         "Ruby on Rails, Javascript, JQuery, Apache, Passenger, MySQL, AWS EC2, AWS Lambda, AWS Rekognition, AWS S3, AWS SES, Apache + Passenger, Imagemagick, Bootstrap",
+      //       ],
+      //     },
+
+      //     {
+      //       title: "Ecommerce Developer", company: "Mix It Up! Comics", dates: "March 2017 - November 2017", bullets: [
+      //         "Constructed custom inventory management system integrated with 3 external ecommerce platforms",
+      //         "React.js + Redux, Materialize.css, PostgreSQL, Python/Django, Express.js, Shopify, AWS S3, Square Point of Sale",
+      //       ],
+      //     },
+
+      //     {
+      //       title: "Summer Intern", company: "Amelia", dates: "May 2013 - August 2013", bullets: [
+      //         "Cooperated with senior development mentors in building  admin blogging platforms",
+      //         "Bootstrap.css, MongoDB, Python/Twisted",
+      //       ],
+      //     },
+      //   ],
+      //   skills: [
+      //     'Typescript & Javascript',
+      //     'Ruby',
+      //     'Python',
+      //     'HTML & CSS',
+      //     'React & React Native',
+      //     'Node & Express.js',
+      //     'Git & Github',
+      //     'MySQL',
+      //     'PostgreSQL',
+      //     'MongoDB',
+      //     'Amazon Web Services',
+      //   ],
+      //   education: [
+      //     { name: 'BYU - Idaho', degree: 'B.S. Applied Technologies', },
+      //     { name: 'Galvanize', degree: 'Full Stack Web Development', },
+      //   ],
+      // };
+      // Configuration Constants
+      const LOCALSTORAGE_PREFIX = 'SNAPRESUME';
+      const PREVIEW_PADDING = 16;
+      const RESUME_RATIO = 8.5 / 11;
+      const MIN_WIDTH = 100;
+      const MOBILE_BREAKPOINT = 500;
+      // Initialize Page Data
+      const preview = document.querySelector('#preview');
+      preview.appendChild(buildLoader());
+      let [
+        RESUME_DATA,
+        ALL_SKILLS,
+        EXPANDED_SECTIONS,
+      ] = await Promise.all([
+        safeRead("RESUME_DATA", {}),
+        safeRead("ALL_SKILLS", []),
+        safeRead("EXPANDED_SECTIONS", ["contact"]),
+      ]);
+      console.log({ RESUME_DATA });
+      populateForm();
+
+      async function safeRead(key, defaultValue) {
+        await new Promise((res) => setTimeout(res, 500));
+        try {
+          return JSON.parse(localStorage.getItem(`${LOCALSTORAGE_PREFIX}::${key}`)) || defaultValue;
+        } catch (_) {
+          return defaultValue;
+        }
+      }
+
+      async function unsafeWrite(key, value) {
+        localStorage.setItem(`${LOCALSTORAGE_PREFIX}::${key}`, JSON.stringify(value));
+      }
+
+      // Utilities
+      function debounce(func, timeout = 300) {
+        let timer;
+        return (...args) => {
+          clearTimeout(timer);
+          timer = setTimeout(() => { func.apply(this, args); }, timeout);
+        };
+      }
+
+      const debouncedWriteResumeData = debounce((e) => writeResumeData(e), 3000);
+
+      function resizeCollapse(collapse) {
+        const content = collapse.querySelector('.collapse__content');
+        const headerHeight = collapse.querySelector('.collapse__header').getBoundingClientRect().height;
+        const contentHeight = content.getBoundingClientRect().height;
+        const newHeight = headerHeight + contentHeight;
+        collapse.classList.add('expanded');
+        collapse.style.height = `${newHeight}px`;
+      }
+
+      function makeEnterWatcher(func) {
+        return function (event) {
+          if (event.key === "Enter") func();
+        }
+      }
+
+      // Element Builders
+      function buildLoader() {
+        const loader = document.createElement('div');
+        const inner = document.createElement('div');
+        loader.classList.add('loader');
+        loader.appendChild(inner);
+
+        return loader;
+      }
+
+      function getRightColumn() {
+        const right = document.querySelector('#right');
+        if (right) return right;
+        const resume = document.querySelector('#resume');
+        const newRight = document.createElement('div');
+        resume.appendChild(newRight);
+        newRight.id = 'right';
+        newRight.style.width = '20%';
+        newRight.style.float = 'left';
+        newRight.style.paddingTop = '0.2em';
+
+        return newRight;
+      };
+
+      function makeSectionHeader(section) {
+        const header = document.createElement('h3');
+        header.innerHTML = section;
+        header.style.fontSize = '.16em';
+        header.style.fontWeight = 'bold';
+        header.style.color = '#CC0000';
+
+        return header;
+      }
+
+      function drawContactInfo() {
+        const resume = document.querySelector('#resume');
+        const contactInfo = document.createElement('div');
+        contactInfo.style.paddingLeft = '0.25em';
+        contactInfo.style.paddingTop = '0.25em';
+
+        const name = document.createElement('h2');
+        name.innerHTML = RESUME_DATA.name || "John Smith";
+        name.style.fontSize = "0.25em";
+        contactInfo.appendChild(name);
+
+        const title = document.createElement('div');
+        title.innerHTML = RESUME_DATA.title || "Senior Analyst";
+        title.style.fontSize = "0.20em";
+        contactInfo.appendChild(title);
+
+        if (RESUME_DATA.phone) {
+          const phone = document.createElement('div');
+          phone.innerHTML = RESUME_DATA.phone;
+          phone.style.fontSize = "0.13em";
+          contactInfo.appendChild(phone);
+        }
+
+        if (RESUME_DATA.email) {
+          const email = document.createElement('div');
+          const link = document.createElement('a');
+          link.innerHTML = RESUME_DATA.email;
+          link.href = `mailto:${RESUME_DATA.email}`;
+          email.style.fontSize = "0.13em";
+          email.appendChild(link);
+          contactInfo.appendChild(email);
+        }
+
+        if (RESUME_DATA.social) {
+          const social = document.createElement('div');
+          const link = document.createElement('a');
+          link.innerHTML = RESUME_DATA.social;
+          link.href = `https://${RESUME_DATA.social}`;
+          social.style.fontSize = "0.13em";
+          social.appendChild(link);
+          contactInfo.appendChild(social);
+        }
+
+        if (RESUME_DATA.city) {
+          const city = document.createElement('div');
+          city.innerHTML = RESUME_DATA.city;
+          city.style.fontSize = "0.13em";
+          contactInfo.appendChild(city);
+        }
+
+        resume.appendChild(contactInfo);
+      };
+
+      function drawExperiences() {
+        const resume = document.querySelector('#resume');
+        const experiences = document.createElement('div');
+        experiences.id = "experience";
+        experiences.style.overflow = 'hidden';
+        experiences.style.paddingLeft = '0.25em';
+        experiences.style.paddingRight = '0.25em';
+        experiences.style.paddingTop = '0.2em';
+        experiences.style.float = 'left';
+
+        const title = makeSectionHeader('Experience');
+        experiences.appendChild(title);
+
+        const hasSkills = RESUME_DATA.skills && RESUME_DATA.skills.length;
+        const hasEducation = RESUME_DATA.education && RESUME_DATA.education.length;
+        if (hasSkills || hasEducation)
+          experiences.style.width = "60%";
+
+        (RESUME_DATA.experiences || []).forEach(experience => {
+          const experienceEle = document.createElement('div');
+          experienceEle.style.fontSize = '0.12em';
+          experienceEle.style.display = 'flex';
+          experienceEle.style.flexDirection = 'column';
+          experienceEle.style.marginBottom = '0.6em';
+
+          const title = document.createElement('span');
+          const titleString = [experience.title, experience.company].join(' | ');
+          title.innerHTML = titleString;
+          title.style.fontWeight = 'bold';
+          experienceEle.appendChild(title);
+
+          const date = document.createElement('span');
+          date.innerHTML = experience.dates;
+          date.style.color = 'rgba(0, 0, 0, 0.75)';
+          date.style.fontSize = '0.8em';
+          experienceEle.appendChild(date);
+
+          const bulletList = document.createElement('ul');
+          bulletList.style.paddingLeft = '1.5em';
+          experience.bullets.forEach(bullet => {
+            const bulletEle = document.createElement('li');
+            bulletEle.innerHTML = bullet;
+            bulletList.appendChild(bulletEle);
+          });
+          experienceEle.appendChild(bulletList);
+
+          experiences.appendChild(experienceEle);
+        });
+
+        resume.appendChild(experiences);
+      }
+
+      function drawSkills() {
+        if (!RESUME_DATA.skills || !RESUME_DATA.skills.length) return;
+        const right = getRightColumn();
+        const skills = document.createElement('div');
+        skills.style.display = 'flex';
+        skills.style.flexDirection = 'column';
+        skills.style.marginBottom = '0.25em';
+        const title = makeSectionHeader('Skills');
+        skills.appendChild(title);
+        RESUME_DATA.skills.forEach(skillString => {
+          const skill = document.createElement('span');
+          skill.style.fontSize = '.1em';
+          skill.innerHTML = skillString;
+          skills.append(skill);
+        });
+
+
+
+        right.appendChild(skills);
+      }
+
+      function drawEducation() {
+        if (!RESUME_DATA.education || !RESUME_DATA.education.length) return;
+        const right = getRightColumn();
+        const education = document.createElement('div');
+        education.style.display = 'flex';
+        education.style.flexDirection = 'column';
+        education.style.marginBottom = '0.25em';
+        education.appendChild(makeSectionHeader('Education'));
+        right.appendChild(education);
+
+        RESUME_DATA.education.forEach(educationObj => {
+          const educationEle = document.createElement('div');
+          const name = document.createElement('span');
+          name.innerHTML = educationObj.name;
+          const degree = document.createElement('span');
+          degree.innerHTML = educationObj.degree;
+          educationEle.appendChild(name);
+          educationEle.appendChild(degree);
+
+          name.style.fontWeight = 'bold';
+
+          educationEle.style.fontSize = '.1em';
+          educationEle.style.display = 'flex';
+          educationEle.style.flexDirection = 'column';
+          educationEle.style.marginBottom = '1em';
+
+
+          education.append(educationEle);
+        });
+      };
+
+      function drawResume() {
+        console.log("drawing resume");
+        const headerHeight = document.querySelector('header').getBoundingClientRect().height;
+        const previewWidth = document.querySelector('#preview').getBoundingClientRect().width;
+        const viewWidth = window.innerWidth;
+        const viewHeight = window.innerHeight;
+        const isMobile = viewWidth < (MOBILE_BREAKPOINT + PREVIEW_PADDING * 2);
+        const availableWidth = isMobile || true
+          ? viewWidth - (PREVIEW_PADDING * 2)
+          : previewWidth - (PREVIEW_PADDING * 2);
+        const availableHeight = viewHeight - headerHeight;
+        const verticalConsumption = isMobile ? 1 / 2 : 7 / 9;
+
+        let targetHeight = (availableHeight * verticalConsumption) - (PREVIEW_PADDING * 2);
+        let targetWidth = RESUME_RATIO * targetHeight;
+
+        if (targetWidth > availableWidth) {
+          targetWidth = availableWidth;
+          targetHeight = availableWidth / RESUME_RATIO;
+        }
+
+        if (targetWidth < MIN_WIDTH) {
+          targetWidth = MIN_WIDTH
+          targetHeight = MIN_WIDTH / RESUME_RATIO;
+        }
+
+        if (targetWidth > availableWidth) {
+          document.querySelector('#preview').innerHTML = 'No Preview Available';
+          return;
+        }
+
+        const resume = document.createElement('div');
+        const growthAmount = targetWidth / MIN_WIDTH;
+        resume.id = 'resume';
+        resume.style.height = `${targetHeight}px`;
+        resume.style.width = `${targetWidth}px`;
+        resume.style.fontSize = `${growthAmount}em`;
+
+        document.querySelector('#preview').innerHTML = '';
+        document.querySelector('#preview').appendChild(resume);
+
+        drawContactInfo();
+        drawExperiences();
+        drawSkills();
+        drawEducation();
+      };
+
+      function buildSortableItem(text) {
+        const containerEle = document.createElement('div');
+        const leftEle = document.createElement('div');
+        const sortEle = document.createElement('i');
+        const textEle = document.createElement('span');
+        const checkboxEle = document.createElement('input');
+        const deleteEle = document.createElement('i');
+
+        containerEle.classList.add('sort-item');
+
+        checkboxEle.type = 'checkbox';
+
+        sortEle.classList.add('fa-solid');
+        sortEle.classList.add('fa-sort');
+        sortEle.classList.add('clickable');
+        sortEle.classList.add('sort-handle');
+
+        deleteEle.classList.add('fa-solid');
+        deleteEle.classList.add('fa-trash');
+        deleteEle.classList.add('clickable');
+
+        textEle.innerHTML = text;
+
+        leftEle.appendChild(sortEle);
+        leftEle.appendChild(checkboxEle);
+        leftEle.appendChild(textEle);
+        containerEle.appendChild(leftEle);
+        containerEle.appendChild(deleteEle);
+
+        return containerEle;
+      }
+
+      function buildSkillItem(skill) {
+        const sortItem = buildSortableItem(skill);
+        if (RESUME_DATA.skills && RESUME_DATA.skills.includes(skill))
+          sortItem.querySelector('input').checked = true;
+        sortItem.querySelector('input').addEventListener('change', updateResumeData);
+        sortItem.querySelector('.fa-trash').addEventListener('click', removeSkill);
+
+        return sortItem;
+      }
+
+      function updateContactInformation() {
+        RESUME_DATA.name = document.querySelector('main .form-control.name input').value;
+        RESUME_DATA.title = document.querySelector('main .form-control.title input').value;
+        RESUME_DATA.email = document.querySelector('main .form-control.email input').value;
+        RESUME_DATA.phone = document.querySelector('main .form-control.phone input').value;
+        RESUME_DATA.social = document.querySelector('main .form-control.social input').value;
+        RESUME_DATA.city = document.querySelector('main .form-control.city input').value;
+      }
+
+      function updateSkills() {
+        const all = [];
+        const selected = [];
+        const skillSorter = document.querySelectorAll('#skill-sorter .sort-item').forEach(ele => {
+          const text = ele.querySelector('span').innerHTML;
+          all.push(text);
+          if (ele.querySelector('input').checked)
+            selected.push(text);
+        });
+        unsafeWrite("ALL_SKILLS", all);
+        RESUME_DATA.skills = selected;
+      }
+
+      function populateForm() {
+        // Contact Info
+        document.querySelector('main .form-control.name input').value = RESUME_DATA.name || "";
+        document.querySelector('main .form-control.title input').value = RESUME_DATA.title || "";
+        document.querySelector('main .form-control.email input').value = RESUME_DATA.email || "";
+        document.querySelector('main .form-control.phone input').value = RESUME_DATA.phone || "";
+        document.querySelector('main .form-control.social input').value = RESUME_DATA.social || "";
+        document.querySelector('main .form-control.city input').value = RESUME_DATA.city || "";
+
+        // Skills
+        if (ALL_SKILLS && ALL_SKILLS.length) {
+          const skillSorter = document.querySelector("#skill-sorter");
+          ALL_SKILLS.forEach(skill => {
+            skillSorter.appendChild(buildSkillItem(skill));
+          });
+          Sortable.create(skillSorter, {
+            handle: '.sort-handle',
+            onEnd: updateResumeData,
+          });
+        }
+
+      }
+
+      // Event Handlers
+      function removeSkill(event) {
+        event.target.closest('.sort-item').remove();
+        resizeCollapse(document.querySelector('.collapse.skills'));
+        updateResumeData();
+      }
+
+      function addSkill(event) {
+        event.preventDefault();
+        const input = event.target.closest('.item-adder').querySelector('input');
+        const skill = input.value;
+        if (!skill) return;
+        input.value = "";
+        document.querySelector('#skill-sorter').appendChild(buildSkillItem(skill));
+        resizeCollapse(event.target.closest('.collapse'));
+        updateResumeData();
+      }
+
+      function toggleCollapse(event) {
+        const header = event.target;
+        const collapse = header.closest('.collapse');
+        const name = collapse.classList[1];
+        const newExpansions = new Set(EXPANDED_SECTIONS);
+        if (collapse.classList.contains('expanded')) {
+          collapse.classList.remove('expanded');
+          collapse.style.removeProperty('height');
+          newExpansions.delete(name);
+        } else {
+          newExpansions.add(name);
+          resizeCollapse(collapse);
+          // const currentHeight = collapse.getBoundingClientRect().height;
+          // const contentHeight = content.getBoundingClientRect().height;
+          // const newHeight = currentHeight + contentHeight;
+          // collapse.classList.add('expanded');
+          // collapse.style.height = `${newHeight}px`;
+        }
+        EXPANDED_SECTIONS = [...newExpansions];
+        unsafeWrite("EXPANDED_SECTIONS", EXPANDED_SECTIONS);
+      };
+
+      function writeResumeData() {
+        console.log("writeResumeData");
+        unsafeWrite("RESUME_DATA", RESUME_DATA);
+      }
+
+      function updateResumeData() {
+        console.log("updateResumeData");
+        updateContactInformation();
+        updateSkills();
+
+        debouncedWriteResumeData();
+        drawResume();
+      }
+      const debouncedUpdateResumeData = debounce((e) => updateResumeData(e), 500);
+
+      window.addEventListener('resize', drawResume);
+      document.querySelectorAll('.collapse__header').forEach(headerEle => headerEle.addEventListener('click', toggleCollapse));
+      document.querySelector('main form').addEventListener('keypress', debouncedUpdateResumeData);
+      document.querySelector('.collapse.skills .item-adder button').addEventListener('click', addSkill);
+      document.querySelector('.collapse.skills .item-adder input').addEventListener('keypress', makeEnterWatcher(addSkill));
+
+      drawResume();
+      EXPANDED_SECTIONS.forEach(section => {
+        document.querySelector(`.collapse.${section} > .collapse__header`).dispatchEvent(new Event('click'));
+      });
+    })();
+  </script>
+</body>
+
+</html>
