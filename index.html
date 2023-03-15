@@ -177,6 +177,12 @@
     }
 
     @media (min-width: 500px) {
+
+      html,
+      body {
+        height: 100vh;
+      }
+
       body {
         display: grid;
         grid-template-areas:
@@ -184,6 +190,10 @@
           "main preview";
         grid-template-rows: 5rem auto;
         grid-template-columns: 2fr 3fr;
+      }
+
+      main {
+        overflow: scroll;
       }
     }
 
@@ -662,7 +672,7 @@
         return containerEle;
       }
 
-      function buildSkillItem(skill, checked=false) {
+      function buildSkillItem(skill, checked = false) {
         const sortItem = buildSortableItem(skill);
         if (RESUME_DATA.skills && RESUME_DATA.skills.includes(skill) || checked)
           sortItem.querySelector('input').checked = true;
