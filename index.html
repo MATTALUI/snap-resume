@@ -111,6 +111,14 @@
       width: 1.625rem;
     }
 
+    input.inline-edit {
+      border: none;
+      outline: none;
+      padding: 0.125rem 0.25rem;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+    }
+
     .form-control input {
       width: 100%;
       border: none;
@@ -398,7 +406,7 @@
 
       function makeEnterWatcher(func) {
         return function (event) {
-          if (event.key === "Enter") func();
+          if (event.key === "Enter") func(event);
         }
       }
 
@@ -643,10 +651,12 @@
       function buildSortableItem(text) {
         const containerEle = document.createElement('div');
         const leftEle = document.createElement('div');
+        const rightEle = document.createElement('div');
         const sortEle = document.createElement('i');
         const textEle = document.createElement('span');
         const checkboxEle = document.createElement('input');
         const deleteEle = document.createElement('i');
+        const editEle = document.createElement('i');
 
         containerEle.classList.add('sort-item');
 
@@ -661,15 +671,61 @@
         deleteEle.classList.add('fa-trash');
         deleteEle.classList.add('clickable');
 
+        editEle.classList.add('fa-solid');
+        editEle.classList.add('fa-pen-to-square');
+        editEle.classList.add('clickable');
+        editEle.style.marginRight = '0.25rem';
+
         textEle.innerHTML = text;
 
         leftEle.appendChild(sortEle);
         leftEle.appendChild(checkboxEle);
         leftEle.appendChild(textEle);
+        rightEle.appendChild(editEle);
+        rightEle.appendChild(deleteEle);
         containerEle.appendChild(leftEle);
-        containerEle.appendChild(deleteEle);
+        containerEle.appendChild(rightEle);
 
         return containerEle;
+      }
+
+      function editSkill(event) {
+        const skill = event.target.value;
+        const sortItem = event.target.closest('.sort-item');
+        const left = sortItem.querySelector('div');
+        event.target.remove();
+
+        const spanEle = document.createElement('span');
+        spanEle.innerHTML = skill;
+        spanEle.addEventListener('dblclick', toggleEditSkill);
+        spanEle.classList.add('clickable');
+        left.appendChild(spanEle);
+
+        updateResumeData();
+      }
+
+      function toggleEditSkill(event) {
+        const sortItem = event.target.closest('.sort-item');
+        const left = sortItem.querySelector('div');
+        const skillSpan = left.querySelector('span');
+        if (!skillSpan) return;
+        const skill = skillSpan.innerHTML;
+        skillSpan.remove();
+
+        const input = document.createElement('input');
+        input.value = skill;
+        input.type = 'text';
+        input.classList.add('inline-edit');
+        left.appendChild(input);
+        input.focus();
+
+        input.addEventListener('keypress', e => {
+          // We have to stop keypress propagation so that it does not try and
+          // update RESUME_DATA without a span
+          e.stopPropagation();
+          makeEnterWatcher(editSkill)(e);
+        });
+        input.addEventListener('blur', editSkill);
       }
 
       function buildSkillItem(skill, checked = false) {
@@ -678,6 +734,9 @@
           sortItem.querySelector('input').checked = true;
         sortItem.querySelector('input').addEventListener('change', updateResumeData);
         sortItem.querySelector('.fa-trash').addEventListener('click', removeSkill);
+        sortItem.querySelector('.fa-pen-to-square').addEventListener('click', toggleEditSkill);
+        sortItem.querySelector('span').addEventListener('dblclick', toggleEditSkill);
+        sortItem.querySelector('span').classList.add('clickable');
 
         return sortItem;
       }
