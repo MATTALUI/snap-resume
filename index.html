@@ -300,12 +300,12 @@
           <i class="fa-solid fa-chevron-up"></i>
         </div>
         <div class="collapse__content">
-          <div id="skill-sorter">
-
-          </div>
           <div class="item-adder">
             <input type="text" />
             <button><i class="fa-solid fa-plus"></i></button>
+          </div>
+          <div id="skill-sorter">
+
           </div>
         </div>
       </div>
@@ -316,86 +316,22 @@
           <i class="fa-solid fa-chevron-up"></i>
         </div>
         <div class="collapse__content">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro, consectetur doloribus, eum repellendus animi
-          saepe et quibusdam fugiat totam eligendi molestiae possimus! Ex vitae fuga molestiae, ipsam modi quae nobis.
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Molestiae voluptatum iste vero ex beatae earum
-          provident nesciunt eveniet culpa debitis, animi excepturi obcaecati suscipit deleniti pariatur quidem
-          repellendus ducimus doloremque. Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque veritatis,
-          inventore fuga doloremque architecto eveniet illum dolore at deserunt nemo! Minus tempore aperiam quaerat,
-          accusantium doloremque expedita. Eum, accusamus illo. Lorem ipsum dolor sit amet consectetur adipisicing elit.
-          Maiores adipisci aperiam ullam eos culpa quam consectetur ratione amet voluptatibus pariatur aut praesentium,
-          doloremque obcaecati repudiandae ad voluptatum suscipit facere explicabo.
+          <div>
+            <div class="form-control name">
+              <label>Name</label>
+              <input type="text" />
+            </div>
+            <div class="form-control degree">
+              <label>Degree</label>
+              <input type="text" />
+            </div>
+          </div>
         </div>
       </div>
     </form>
   </main>
   <script>
     (async () => {
-      // const RESUME_DATA = {
-      //   name: "Matthew Hummer",
-      //   title: "Software Engineer",
-      //   email: "matthew.j.hummer@gmail.com",
-      //   phone: "1-970-888-2794",
-      //   city: "Fort Collins, Colorado",
-      //   social: "www.github.com/mattalui",
-      //   experiences: [
-      //     {
-      //       title: "Fullstack Developer", company: "Kapwing", dates: "May 2021 - Present", bullets: [
-      //         "Prototyped systems to discover viability in future feature work and implemented feature runway to increase team velocity",
-      //         "Self-organized major features and worked with product teams to set deadlines and delivery estimates",
-      //         "React, Express.js, Python/Flask, MongoDB, ImageMagick, FFMPEG, Google Cloud"
-      //       ],
-      //     },
-
-      //     {
-      //       title: "Fullstack Developer", company: "Nutrien Ag Solutions", dates: "May 2019 - May 2021", bullets: [
-      //         "Built, maintained, and supported React macrocomponents and subapplications for crop planning software",
-      //         "React Native, Express.js, Python/Django, AWS API Gateway, AWS Lambda, AWS DynamoDb, Golang, PostgreSQL",
-      //       ],
-      //     },
-
-      //     {
-      //       title: "Lead Developer", company: "Trace First", dates: "November 2017 - March 2022", bullets: [
-      //         "Coordinated with USDA committees to define official XML schema for sharing interstate livestock data",
-      //         "Reviewed code changes for and mentor junior team members to help facilitate growth and onboarding",
-      //         "Created network of integrated applications providing technological solutions to state head agencies",
-      //         "Carefully designed database relations to maximize querying efficiencies",
-      //         "Ruby on Rails, Javascript, JQuery, Apache, Passenger, MySQL, AWS EC2, AWS Lambda, AWS Rekognition, AWS S3, AWS SES, Apache + Passenger, Imagemagick, Bootstrap",
-      //       ],
-      //     },
-
-      //     {
-      //       title: "Ecommerce Developer", company: "Mix It Up! Comics", dates: "March 2017 - November 2017", bullets: [
-      //         "Constructed custom inventory management system integrated with 3 external ecommerce platforms",
-      //         "React.js + Redux, Materialize.css, PostgreSQL, Python/Django, Express.js, Shopify, AWS S3, Square Point of Sale",
-      //       ],
-      //     },
-
-      //     {
-      //       title: "Summer Intern", company: "Amelia", dates: "May 2013 - August 2013", bullets: [
-      //         "Cooperated with senior development mentors in building  admin blogging platforms",
-      //         "Bootstrap.css, MongoDB, Python/Twisted",
-      //       ],
-      //     },
-      //   ],
-      //   skills: [
-      //     'Typescript & Javascript',
-      //     'Ruby',
-      //     'Python',
-      //     'HTML & CSS',
-      //     'React & React Native',
-      //     'Node & Express.js',
-      //     'Git & Github',
-      //     'MySQL',
-      //     'PostgreSQL',
-      //     'MongoDB',
-      //     'Amazon Web Services',
-      //   ],
-      //   education: [
-      //     { name: 'BYU - Idaho', degree: 'B.S. Applied Technologies', },
-      //     { name: 'Galvanize', degree: 'Full Stack Web Development', },
-      //   ],
-      // };
       // Configuration Constants
       const LOCALSTORAGE_PREFIX = 'SNAPRESUME';
       const PREVIEW_PADDING = 16;
@@ -726,9 +662,9 @@
         return containerEle;
       }
 
-      function buildSkillItem(skill) {
+      function buildSkillItem(skill, checked=false) {
         const sortItem = buildSortableItem(skill);
-        if (RESUME_DATA.skills && RESUME_DATA.skills.includes(skill))
+        if (RESUME_DATA.skills && RESUME_DATA.skills.includes(skill) || checked)
           sortItem.querySelector('input').checked = true;
         sortItem.querySelector('input').addEventListener('change', updateResumeData);
         sortItem.querySelector('.fa-trash').addEventListener('click', removeSkill);
@@ -794,7 +730,7 @@
         const skill = input.value;
         if (!skill) return;
         input.value = "";
-        document.querySelector('#skill-sorter').appendChild(buildSkillItem(skill));
+        document.querySelector('#skill-sorter').prepend(buildSkillItem(skill, true));
         resizeCollapse(event.target.closest('.collapse'));
         updateResumeData();
       }
