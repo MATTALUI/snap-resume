@@ -69,6 +69,10 @@
       cursor: pointer;
     }
 
+    .hidden {
+      display: none;
+    }
+
     .education-container {
       display: flex;
       flex-direction: column;
@@ -124,10 +128,6 @@
       color: var(--light);
       height: 1.625rem;
       width: 1.625rem;
-    }
-
-    .education-form {
-      display: none;
     }
 
     .education-form button {
@@ -377,7 +377,7 @@
           <i class="fa-solid fa-chevron-up"></i>
         </div>
         <div class="collapse__content">
-          <div class="education-form">
+          <div class="education-form hidden">
             <div class="form-control name">
               <label>Name</label>
               <input type="text" />
@@ -388,7 +388,7 @@
             </div>
             <button>Save</button>
           </div>
-          <div class="all-aducations">
+          <div class="all-educations">
             <button class="w-100">New</button>
             <div id="education-sorter"></div>
           </div>
@@ -793,7 +793,6 @@
       }
 
       function toggleEditEducation(event) {
-        console.log('toggleEditEducation');
         const sortItem = event.target.closest('.sort-item');
         const parent = event.target.parentNode;
         const span = event.target;
@@ -965,6 +964,30 @@
         updateResumeData();
       }
 
+      function addEducation(event) {
+        event.preventDefault();
+        const nameInput = document.querySelector('.education-form .form-control.name input');
+        const degreeInput = document.querySelector('.education-form .form-control.degree input');
+        const name = nameInput.value;
+        const degree = degreeInput.value;
+
+        if (!name || !degree) return;
+
+        const educationObj = {
+          name,
+          degree,
+        };
+
+        document.querySelector('.education-form').classList.add('hidden');
+        document.querySelector('.all-educations').classList.remove('hidden');
+        document.querySelector('#education-sorter').prepend(buildEducationItem(educationObj, true));
+        nameInput.value = '';
+        degreeInput.value = '';
+        resizeCollapse(event.target.closest('.collapse'));
+
+        updateResumeData();
+      }
+
       function toggleCollapse(event) {
         const header = event.target;
         const collapse = header.closest('.collapse');
@@ -987,6 +1010,13 @@
         unsafeWrite("EXPANDED_SECTIONS", EXPANDED_SECTIONS);
       };
 
+      function openNewEducationForm(event) {
+        event.preventDefault();
+        document.querySelector('.education-form').classList.remove('hidden');
+        document.querySelector('.all-educations').classList.add('hidden');
+        resizeCollapse(event.target.closest('.collapse'));
+      }
+
       function writeResumeData() {
         console.log("writeResumeData");
         unsafeWrite("RESUME_DATA", RESUME_DATA);
@@ -1003,7 +1033,7 @@
       }
       const debouncedUpdateResumeData = debounce((e) => updateResumeData(e), 500);
 
-      function resizeScreen() {
+      function resizeScreen(_event) {
         drawResume();
         document.querySelectorAll('.collapse.expanded').forEach(resizeCollapse);
       }
@@ -1013,6 +1043,8 @@
       document.querySelector('main form').addEventListener('keypress', debouncedUpdateResumeData);
       document.querySelector('.collapse.skills .item-adder button').addEventListener('click', addSkill);
       document.querySelector('.collapse.skills .item-adder input').addEventListener('keypress', makeEnterWatcher(addSkill));
+      document.querySelector('.all-educations button.w-100').addEventListener('click', openNewEducationForm);
+      document.querySelector('.education-form button').addEventListener('click', addEducation);
 
       drawResume();
       EXPANDED_SECTIONS.forEach(section => {
