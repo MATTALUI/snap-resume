@@ -78,7 +78,7 @@
       flex-direction: column;
     }
 
-    .education-container span:first-of-type{
+    .education-container span:first-of-type {
       font-weight: bold;
     }
 
@@ -92,7 +92,7 @@
       padding: 0.25rem 0;
     }
 
-    .sort-item > div:first-of-type {
+    .sort-item>div:first-of-type {
       flex: 1;
       display: flex;
       align-items: center;
@@ -245,10 +245,10 @@
 
       main {
         overflow: auto;
+        scrollbar-color: var(--fern) rgba(0,0,0,0);
+        scrollbar-width: thin;
       }
     }
-
-
 
 
     /* STOLEN FROM https://loading.io/css/ */
@@ -855,7 +855,7 @@
 
         baseSortable.querySelector('input').addEventListener('change', updateResumeData);
         if (RESUME_DATA.education)
-          baseSortable.querySelector('input').checked = 
+          baseSortable.querySelector('input').checked =
             checked ||
             !!RESUME_DATA
               .education
@@ -863,7 +863,7 @@
                 name === educationObj.name &&
                 degree === educationObj.degree
               )
-            )
+              )
 
         return baseSortable;
       }
