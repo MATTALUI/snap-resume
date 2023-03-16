@@ -69,6 +69,15 @@
       cursor: pointer;
     }
 
+    .education-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .education-container span:first-of-type{
+      font-weight: bold;
+    }
+
     .sort-item {
       border-top: 1px solid var(--sage);
       border-bottom: 1px solid var(--sage);
@@ -77,6 +86,12 @@
       align-items: center;
       justify-content: space-between;
       padding: 0.25rem 0;
+    }
+
+    .sort-item > div:first-of-type {
+      flex: 1;
+      display: flex;
+      align-items: center;
     }
 
     .form-control {
@@ -111,6 +126,32 @@
       width: 1.625rem;
     }
 
+    .education-form {
+      display: none;
+    }
+
+    .education-form button {
+      border: none;
+      outline: none;
+      background-color: var(--hunter);
+      border-radius: 0.25rem;
+      color: var(--light);
+      height: 1.625rem;
+      width: 100%;
+      margin-top: 0.25rem;
+    }
+
+    button.w-100 {
+      border: none;
+      outline: none;
+      background-color: var(--hunter);
+      border-radius: 0.25rem;
+      color: var(--light);
+      height: 1.625rem;
+      width: 100%;
+      margin-top: 0.25rem;
+    }
+
     input.inline-edit {
       border: none;
       outline: none;
@@ -120,12 +161,14 @@
     }
 
     .form-control input {
+      box-sizing: border-box;
       width: 100%;
       border: none;
       outline: none;
       padding: 0.125rem 0.25rem;
       border-radius: 0.25rem;
       font-size: 1.125rem;
+      margin-top: 0.125rem;
     }
 
     .collapse {
@@ -201,7 +244,7 @@
       }
 
       main {
-        overflow: scroll;
+        overflow: auto;
       }
     }
 
@@ -256,7 +299,7 @@
     <form>
       <div class="collapse contact">
         <div class="collapse__header">
-          <span>Contact Information</span>
+          <span>Contact Info</span>
           <i class="fa-solid fa-chevron-up"></i>
         </div>
         <div class="collapse__content">
@@ -334,7 +377,7 @@
           <i class="fa-solid fa-chevron-up"></i>
         </div>
         <div class="collapse__content">
-          <div>
+          <div class="education-form">
             <div class="form-control name">
               <label>Name</label>
               <input type="text" />
@@ -343,6 +386,11 @@
               <label>Degree</label>
               <input type="text" />
             </div>
+            <button>Save</button>
+          </div>
+          <div class="all-aducations">
+            <button class="w-100">New</button>
+            <div id="education-sorter"></div>
           </div>
         </div>
       </div>
@@ -362,10 +410,12 @@
       let [
         RESUME_DATA,
         ALL_SKILLS,
+        ALL_EDUCATION,
         EXPANDED_SECTIONS,
       ] = await Promise.all([
         safeRead("RESUME_DATA", {}),
         safeRead("ALL_SKILLS", []),
+        safeRead("ALL_EDUCATION", []),
         safeRead("EXPANDED_SECTIONS", ["contact"]),
       ]);
       console.log({ RESUME_DATA });
@@ -741,6 +791,40 @@
         return sortItem;
       }
 
+      function buildEducationItem(educationObj) {
+        const baseSortable = buildSortableItem();
+        const educationContainer = document.createElement('div');
+        const nameSpan = document.createElement('span');
+        const degreeSpan = document.createElement('span');
+
+        educationContainer.classList.add('education-container');
+
+        nameSpan.innerHTML = educationObj.name;
+        nameSpan.classList.add('clickable');
+        nameSpan.classList.add('name');
+
+        degreeSpan.innerHTML = educationObj.degree;
+        degreeSpan.classList.add('clickable');
+        degreeSpan.classList.add('degree');
+
+        educationContainer.appendChild(nameSpan);
+        educationContainer.appendChild(degreeSpan);
+        baseSortable.querySelector('span').remove();
+        baseSortable.querySelector('div').appendChild(educationContainer);
+
+        baseSortable.querySelector('input').addEventListener('change', updateResumeData);
+        if (RESUME_DATA.education)
+          baseSortable.querySelector('input').checked = !!RESUME_DATA
+            .education
+            .find(({ name, degree, }) => (
+              name === educationObj.name &&
+              degree === educationObj.degree
+            )
+          )
+
+        return baseSortable;
+      }
+
       function updateContactInformation() {
         RESUME_DATA.name = document.querySelector('main .form-control.name input').value;
         RESUME_DATA.title = document.querySelector('main .form-control.title input').value;
@@ -753,7 +837,7 @@
       function updateSkills() {
         const all = [];
         const selected = [];
-        const skillSorter = document.querySelectorAll('#skill-sorter .sort-item').forEach(ele => {
+        document.querySelectorAll('#skill-sorter .sort-item').forEach(ele => {
           const text = ele.querySelector('span').innerHTML;
           all.push(text);
           if (ele.querySelector('input').checked)
@@ -761,6 +845,21 @@
         });
         unsafeWrite("ALL_SKILLS", all);
         RESUME_DATA.skills = selected;
+      }
+
+      function updateEducation() {
+        const all = [];
+        const selected = [];
+        document.querySelectorAll('#education-sorter .sort-item').forEach(ele => {
+          const name = ele.querySelector('.name').innerHTML;
+          const degree = ele.querySelector('.name').innerHTML;
+          const educationObj = { name, degree, };
+          all.push(educationObj);
+          if (ele.querySelector('input').checked)
+            selected.push(educationObj);
+        });
+        unsafeWrite("ALL_EDUCATION", all);
+        RESUME_DATA.education = selected;
       }
 
       function populateForm() {
@@ -779,6 +878,18 @@
             skillSorter.appendChild(buildSkillItem(skill));
           });
           Sortable.create(skillSorter, {
+            handle: '.sort-handle',
+            onEnd: updateResumeData,
+          });
+        }
+
+        // Education
+        if (ALL_EDUCATION && ALL_EDUCATION.length) {
+          const educationSorter = document.querySelector("#education-sorter");
+          ALL_EDUCATION.forEach(educationObj => {
+            educationSorter.appendChild(buildEducationItem(educationObj));
+          });
+          Sortable.create(educationSorter, {
             handle: '.sort-handle',
             onEnd: updateResumeData,
           });
@@ -835,13 +946,19 @@
         console.log("updateResumeData");
         updateContactInformation();
         updateSkills();
+        updateEducation();
 
         debouncedWriteResumeData();
         drawResume();
       }
       const debouncedUpdateResumeData = debounce((e) => updateResumeData(e), 500);
 
-      window.addEventListener('resize', drawResume);
+      function resizeScreen() {
+        drawResume();
+        document.querySelectorAll('.collapse.expanded').forEach(resizeCollapse);
+      }
+
+      window.addEventListener('resize', resizeScreen);
       document.querySelectorAll('.collapse__header').forEach(headerEle => headerEle.addEventListener('click', toggleCollapse));
       document.querySelector('main form').addEventListener('keypress', debouncedUpdateResumeData);
       document.querySelector('.collapse.skills .item-adder button').addEventListener('click', addSkill);
