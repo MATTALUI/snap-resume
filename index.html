@@ -778,6 +778,44 @@
         input.addEventListener('blur', editSkill);
       }
 
+      function editEducation(event) {
+        const parent = event.target.parentNode;
+        const input = event.target;
+
+        const span = document.createElement('span');
+        span.innerHTML = input.value;
+        span.classList.add('clickable');
+        span.classList.add(input.classList[1]);
+        span.addEventListener('dblclick', toggleEditEducation);
+
+        parent.replaceChild(span, input);
+        updateResumeData();
+      }
+
+      function toggleEditEducation(event) {
+        console.log('toggleEditEducation');
+        const sortItem = event.target.closest('.sort-item');
+        const parent = event.target.parentNode;
+        const span = event.target;
+        const value = span.innerHTML;
+
+        const input = document.createElement('input');
+        input.value = value;
+        input.type = 'text';
+        input.classList.add('inline-edit');
+        input.classList.add(span.classList[1]);
+        parent.replaceChild(input, span);
+        input.focus();
+
+        input.addEventListener('keypress', e => {
+          // We have to stop keypress propagation so that it does not try and
+          // update RESUME_DATA without a span
+          e.stopPropagation();
+          makeEnterWatcher(editEducation)(e);
+        });
+        input.addEventListener('blur', editEducation);
+      }
+
       function buildSkillItem(skill, checked = false) {
         const sortItem = buildSortableItem(skill);
         if (RESUME_DATA.skills && RESUME_DATA.skills.includes(skill) || checked)
@@ -791,7 +829,7 @@
         return sortItem;
       }
 
-      function buildEducationItem(educationObj) {
+      function buildEducationItem(educationObj, checked = false) {
         const baseSortable = buildSortableItem();
         const educationContainer = document.createElement('div');
         const nameSpan = document.createElement('span');
@@ -802,25 +840,31 @@
         nameSpan.innerHTML = educationObj.name;
         nameSpan.classList.add('clickable');
         nameSpan.classList.add('name');
+        nameSpan.addEventListener('dblclick', toggleEditEducation);
 
         degreeSpan.innerHTML = educationObj.degree;
         degreeSpan.classList.add('clickable');
         degreeSpan.classList.add('degree');
+        degreeSpan.addEventListener('dblclick', toggleEditEducation);
 
         educationContainer.appendChild(nameSpan);
         educationContainer.appendChild(degreeSpan);
         baseSortable.querySelector('span').remove();
         baseSortable.querySelector('div').appendChild(educationContainer);
 
+        baseSortable.querySelector('.fa-trash').addEventListener('click', removeEducation);
+
         baseSortable.querySelector('input').addEventListener('change', updateResumeData);
         if (RESUME_DATA.education)
-          baseSortable.querySelector('input').checked = !!RESUME_DATA
-            .education
-            .find(({ name, degree, }) => (
-              name === educationObj.name &&
-              degree === educationObj.degree
+          baseSortable.querySelector('input').checked = 
+            checked ||
+            !!RESUME_DATA
+              .education
+              .find(({ name, degree, }) => (
+                name === educationObj.name &&
+                degree === educationObj.degree
+              )
             )
-          )
 
         return baseSortable;
       }
@@ -852,7 +896,7 @@
         const selected = [];
         document.querySelectorAll('#education-sorter .sort-item').forEach(ele => {
           const name = ele.querySelector('.name').innerHTML;
-          const degree = ele.querySelector('.name').innerHTML;
+          const degree = ele.querySelector('.degree').innerHTML;
           const educationObj = { name, degree, };
           all.push(educationObj);
           if (ele.querySelector('input').checked)
@@ -901,6 +945,12 @@
       function removeSkill(event) {
         event.target.closest('.sort-item').remove();
         resizeCollapse(document.querySelector('.collapse.skills'));
+        updateResumeData();
+      }
+
+      function removeEducation(event) {
+        event.target.closest('.sort-item').remove();
+        resizeCollapse(document.querySelector('.collapse.education'));
         updateResumeData();
       }
 
