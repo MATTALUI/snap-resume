@@ -415,6 +415,26 @@
           </div>
         </div>
       </div>
+
+      <div class="collapse presets">
+        <div class="collapse__header">
+          <span>Presets</span>
+          <i class="fa-solid fa-chevron-up"></i>
+        </div>
+        <div class="collapse__content">
+          Coming Soon...
+        </div>
+      </div>
+
+      <div class="collapse options">
+        <div class="collapse__header">
+          <span>Options</span>
+          <i class="fa-solid fa-chevron-up"></i>
+        </div>
+        <div class="collapse__content">
+          Coming Soon...
+        </div>
+      </div>
     </form>
   </main>
   <script>
@@ -479,6 +499,7 @@
 
       function makeEnterWatcher(func) {
         return function (event) {
+          event.stopPropagation();
           if (event.key === "Enter") func(event);
         }
       }
@@ -792,12 +813,7 @@
         left.appendChild(input);
         input.focus();
 
-        input.addEventListener('keypress', e => {
-          // We have to stop keypress propagation so that it does not try and
-          // update RESUME_DATA without a span
-          e.stopPropagation();
-          makeEnterWatcher(editSkill)(e);
-        });
+        input.addEventListener('keypress', makeEnterWatcher(editSkill));
         input.addEventListener('blur', editSkill);
       }
 
@@ -829,12 +845,7 @@
         parent.replaceChild(input, span);
         input.focus();
 
-        input.addEventListener('keypress', e => {
-          // We have to stop keypress propagation so that it does not try and
-          // update RESUME_DATA without a span
-          e.stopPropagation();
-          makeEnterWatcher(editEducation)(e);
-        });
+        input.addEventListener('keypress', makeEnterWatcher(editEducation));
         input.addEventListener('blur', editEducation);
       }
 
@@ -891,6 +902,16 @@
         return baseSortable;
       }
 
+      function buildExperienceBullet(bullet, checked = false) {
+        const bulletSortItem = buildSortableItem(bullet);
+        const input = bulletSortItem.querySelector('input');
+        bulletSortItem.querySelector('.fa-trash').addEventListener('click', removeExperienceBullet);
+        input.addEventListener('change', updateResumeData);
+        input.checked = checked;
+
+        return bulletSortItem;
+      }
+
       function buildExperienceItem(experienceObj, checked = false) {
         const baseSortable = buildSortableItem();
         const span = baseSortable.querySelector('span');
@@ -929,12 +950,14 @@
         const adderButton = document.createElement('button');
         const adderIcon = document.createElement('i');
         adderInput.type = 'text';
+        adderInput.addEventListener('keypress', makeEnterWatcher(addExperienceBullet));
         adderButton.appendChild(adderIcon);
         itemAdder.appendChild(adderInput);
         itemAdder.appendChild(adderButton);
         itemAdder.classList.add('item-adder');
         adderIcon.classList.add('fa-solid');
         adderIcon.classList.add('fa-plus');
+        adderIcon.addEventListener('click', addExperienceBullet);
         bulletsContainer.appendChild(itemAdder);
 
         const bulletsSorter = document.createElement('div');
@@ -942,13 +965,11 @@
         bulletsContainer.appendChild(bulletsSorter);
         if (experienceObj.bullets && experienceObj.bullets.length) {
           experienceObj.bullets.forEach(bullet => {
-            const bulletSortItem = buildSortableItem(bullet);
-            bulletSortItem.querySelector('input').addEventListener('change', updateResumeData);
-            bulletSortItem.querySelector('input').checked =
+            const checked =
               resumeExperience &&
               resumeExperience.bullets &&
-              resumeExperience.bullets.includes(bullet);
-            bulletsSorter.appendChild(bulletSortItem);
+              resumeExperience.bullets.includes(bullet)
+            bulletsSorter.appendChild(buildExperienceBullet(bullet, checked));
           });
         }
         Sortable.create(bulletsSorter, {
@@ -1006,8 +1027,8 @@
           const title = ele.querySelectorAll('span')[1].innerHTML;
           const dates = ele.querySelectorAll('span')[2].innerHTML;
           const expSelected = ele.querySelector('input').checked;
-          const experience = {company, title, dates, bullets: [] };
-          const resumeExperience = {company, title, dates, bullets: [] };
+          const experience = { company, title, dates, bullets: [] };
+          const resumeExperience = { company, title, dates, bullets: [] };
 
           ele.querySelectorAll('.bullet-sorter > .sort-item').forEach(bulletEle => {
             const bullet = bulletEle.querySelector('span').innerHTML;
@@ -1042,6 +1063,9 @@
             handle: '.sort-handle',
             onEnd: updateResumeData,
           });
+          const collapse = experienceSorter.closest('.collapse');
+          if (collapse.classList.contains('expanded'))
+            resizeCollapse(collapse);
         }
 
         // Skills
@@ -1054,6 +1078,9 @@
             handle: '.sort-handle',
             onEnd: updateResumeData,
           });
+          const collapse = skillSorter.closest('.collapse');
+          if (collapse.classList.contains('expanded'))
+            resizeCollapse(collapse);
         }
 
         // Education
@@ -1066,6 +1093,9 @@
             handle: '.sort-handle',
             onEnd: updateResumeData,
           });
+          const collapse = educationSorter.closest('.collapse');
+          if (collapse.classList.contains('expanded'))
+            resizeCollapse(collapse);
         }
 
       }
@@ -1083,6 +1113,11 @@
         updateResumeData();
       }
 
+      function removeExperienceBullet(event) {
+        event.target.closest('.sort-item').remove();
+        updateResumeData();
+      }
+
       function addSkill(event) {
         event.preventDefault();
         const input = event.target.closest('.item-adder').querySelector('input');
@@ -1091,6 +1126,19 @@
         input.value = "";
         document.querySelector('#skill-sorter').prepend(buildSkillItem(skill, true));
         resizeCollapse(event.target.closest('.collapse'));
+        updateResumeData();
+      }
+
+      function addExperienceBullet(event) {
+        event.preventDefault();
+        const bullets = event.target.closest('.bullets');
+        const input = bullets.querySelector('.item-adder input');
+        const bullet = input.value;
+
+        if (!bullet) return;
+
+        input.value = '';
+        bullets.querySelector('.bullet-sorter').prepend(buildExperienceBullet(bullet, true));
         updateResumeData();
       }
 
