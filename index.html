@@ -73,13 +73,20 @@
       display: none;
     }
 
-    .education-container {
+    .education-container,
+    .experience-container {
       display: flex;
       flex-direction: column;
+      flex: 1;
     }
 
-    .education-container span:first-of-type {
+    .education-container span:first-of-type,
+    .experience-container span:first-of-type {
       font-weight: bold;
+    }
+
+    .bullets {
+      margin-top: 0.25rem;
     }
 
     .sort-item {
@@ -87,7 +94,7 @@
       border-bottom: 1px solid var(--sage);
       margin-bottom: 0.25rem;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       padding: 0.25rem 0;
     }
@@ -95,7 +102,11 @@
     .sort-item>div:first-of-type {
       flex: 1;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
+    }
+
+    .sort-item>div:first-of-type i {
+      margin-top: 0.1rem;
     }
 
     .form-control {
@@ -245,7 +256,7 @@
 
       main {
         overflow: auto;
-        scrollbar-color: var(--fern) rgba(0,0,0,0);
+        scrollbar-color: var(--fern) rgba(0, 0, 0, 0);
         scrollbar-width: thin;
       }
     }
@@ -343,15 +354,25 @@
           <i class="fa-solid fa-chevron-up"></i>
         </div>
         <div class="collapse__content">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro, consectetur doloribus, eum repellendus animi
-          saepe et quibusdam fugiat totam eligendi molestiae possimus! Ex vitae fuga molestiae, ipsam modi quae nobis.
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Molestiae voluptatum iste vero ex beatae earum
-          provident nesciunt eveniet culpa debitis, animi excepturi obcaecati suscipit deleniti pariatur quidem
-          repellendus ducimus doloremque. Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque veritatis,
-          inventore fuga doloremque architecto eveniet illum dolore at deserunt nemo! Minus tempore aperiam quaerat,
-          accusantium doloremque expedita. Eum, accusamus illo. Lorem ipsum dolor sit amet consectetur adipisicing elit.
-          Maiores adipisci aperiam ullam eos culpa quam consectetur ratione amet voluptatibus pariatur aut praesentium,
-          doloremque obcaecati repudiandae ad voluptatum suscipit facere explicabo.
+          <div class="experience-form hidden">
+            <div class="form-control company">
+              <label>Company</label>
+              <input type="text" />
+            </div>
+            <div class="form-control title">
+              <label>Title</label>
+              <input type="text" />
+            </div>
+            <div class="form-control dates">
+              <label>Dates</label>
+              <input type="text" />
+            </div>
+            <button>Save</button>
+          </div>
+          <div class="all-experiences">
+            <button class="w-100">New</button>
+            <div id="experience-sorter"></div>
+          </div>
         </div>
       </div>
 
@@ -409,11 +430,13 @@
       preview.appendChild(buildLoader());
       let [
         RESUME_DATA,
+        ALL_EXPERIENCE,
         ALL_SKILLS,
         ALL_EDUCATION,
         EXPANDED_SECTIONS,
       ] = await Promise.all([
         safeRead("RESUME_DATA", {}),
+        safeRead("ALL_EXPERIENCE", []),
         safeRead("ALL_SKILLS", []),
         safeRead("ALL_EDUCATION", []),
         safeRead("EXPANDED_SECTIONS", ["contact"]),
@@ -868,6 +891,76 @@
         return baseSortable;
       }
 
+      function buildExperienceItem(experienceObj, checked = false) {
+        const baseSortable = buildSortableItem();
+        const span = baseSortable.querySelector('span');
+
+        const resumeExperience = RESUME_DATA.experiences
+          ? RESUME_DATA.experiences.find(e => (
+            e.company === experienceObj.company &&
+            e.title === experienceObj.title &&
+            e.dates === experienceObj.dates
+          ))
+          : null;
+        baseSortable.querySelector('input').checked = !!resumeExperience || checked;
+
+        const experienceContainer = document.createElement('div');
+        experienceContainer.classList.add('experience-container');
+        baseSortable.querySelector('div').replaceChild(experienceContainer, span);
+
+        const companySpan = document.createElement('span');
+        companySpan.innerHTML = experienceObj.company;
+        experienceContainer.appendChild(companySpan);
+
+        const titleSpan = document.createElement('span');
+        titleSpan.innerHTML = experienceObj.title;
+        experienceContainer.appendChild(titleSpan);
+
+        const datesSpan = document.createElement('span');
+        datesSpan.innerHTML = experienceObj.dates;
+        experienceContainer.appendChild(datesSpan);
+
+        const bulletsContainer = document.createElement('div');
+        bulletsContainer.classList.add('bullets');
+        experienceContainer.appendChild(bulletsContainer);
+
+        const itemAdder = document.createElement('div');
+        const adderInput = document.createElement('input');
+        const adderButton = document.createElement('button');
+        const adderIcon = document.createElement('i');
+        adderInput.type = 'text';
+        adderButton.appendChild(adderIcon);
+        itemAdder.appendChild(adderInput);
+        itemAdder.appendChild(adderButton);
+        itemAdder.classList.add('item-adder');
+        adderIcon.classList.add('fa-solid');
+        adderIcon.classList.add('fa-plus');
+        bulletsContainer.appendChild(itemAdder);
+
+        const bulletsSorter = document.createElement('div');
+        bulletsSorter.classList.add('bullet-sorter');
+        bulletsContainer.appendChild(bulletsSorter);
+        if (experienceObj.bullets && experienceObj.bullets.length) {
+          experienceObj.bullets.forEach(bullet => {
+            const bulletSortItem = buildSortableItem(bullet);
+            bulletSortItem.querySelector('input').addEventListener('change', updateResumeData);
+            bulletSortItem.querySelector('input').checked =
+              resumeExperience &&
+              resumeExperience.bullets &&
+              resumeExperience.bullets.includes(bullet);
+            bulletsSorter.appendChild(bulletSortItem);
+          });
+        }
+        Sortable.create(bulletsSorter, {
+          handle: '.sort-handle',
+          onEnd: updateResumeData,
+        });
+
+        baseSortable.querySelector('input').addEventListener('change', updateResumeData);
+
+        return baseSortable;
+      }
+
       function updateContactInformation() {
         RESUME_DATA.name = document.querySelector('main .form-control.name input').value;
         RESUME_DATA.title = document.querySelector('main .form-control.title input').value;
@@ -905,6 +998,31 @@
         RESUME_DATA.education = selected;
       }
 
+      function updateExperience() {
+        const allExp = [];
+        const selectedExp = [];
+        document.querySelectorAll('#experience-sorter > .sort-item').forEach(ele => {
+          const company = ele.querySelectorAll('span')[0].innerHTML;
+          const title = ele.querySelectorAll('span')[1].innerHTML;
+          const dates = ele.querySelectorAll('span')[2].innerHTML;
+          const expSelected = ele.querySelector('input').checked;
+          const experience = {company, title, dates, bullets: [] };
+          const resumeExperience = {company, title, dates, bullets: [] };
+
+          ele.querySelectorAll('.bullet-sorter > .sort-item').forEach(bulletEle => {
+            const bullet = bulletEle.querySelector('span').innerHTML;
+            const selected = bulletEle.querySelector('input').checked;
+            experience.bullets.push(bullet);
+            if (selected) resumeExperience.bullets.push(bullet);
+          });
+
+          allExp.push(experience);
+          if (expSelected) selectedExp.push(resumeExperience);
+        });
+        unsafeWrite("ALL_EXPERIENCE", allExp);
+        RESUME_DATA.experiences = selectedExp;
+      }
+
       function populateForm() {
         // Contact Info
         document.querySelector('main .form-control.name input').value = RESUME_DATA.name || "";
@@ -913,6 +1031,18 @@
         document.querySelector('main .form-control.phone input').value = RESUME_DATA.phone || "";
         document.querySelector('main .form-control.social input').value = RESUME_DATA.social || "";
         document.querySelector('main .form-control.city input').value = RESUME_DATA.city || "";
+
+        // Experience
+        if (ALL_EXPERIENCE && ALL_EXPERIENCE.length) {
+          const experienceSorter = document.querySelector("#experience-sorter");
+          ALL_EXPERIENCE.forEach(skill => {
+            experienceSorter.appendChild(buildExperienceItem(skill));
+          });
+          Sortable.create(experienceSorter, {
+            handle: '.sort-handle',
+            onEnd: updateResumeData,
+          });
+        }
 
         // Skills
         if (ALL_SKILLS && ALL_SKILLS.length) {
@@ -1025,6 +1155,7 @@
       function updateResumeData() {
         console.log("updateResumeData");
         updateContactInformation();
+        updateExperience();
         updateSkills();
         updateEducation();
 
