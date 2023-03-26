@@ -40,6 +40,14 @@
       flex-direction: column;
     }
 
+    #left, #right {
+      -webkit-box-sizing: border-box;
+      /* Safari/Chrome, other WebKit */
+      -moz-box-sizing: border-box;
+      /* Firefox, other Gecko */
+      box-sizing: border-box;
+    }
+
     header {
       background-color: var(--hunter);
       /* background: linear-gradient(var(--hunter), var(--fern)); */
@@ -62,6 +70,10 @@
     }
 
     button {
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
       cursor: pointer;
     }
 
@@ -521,7 +533,7 @@
         const newRight = document.createElement('div');
         resume.appendChild(newRight);
         newRight.id = 'right';
-        newRight.style.width = '20%';
+        newRight.style.width = '30%';
         newRight.style.float = 'left';
         newRight.style.paddingTop = '0.2em';
 
