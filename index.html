@@ -13,6 +13,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
+    * {
+      print-color-adjust: exact;
+    }
+
     :root {
       --timberwolf: #DAD7CD;
       --sage: #A3B18A;
@@ -40,7 +44,8 @@
       flex-direction: column;
     }
 
-    #left, #right {
+    .left,
+    .right {
       -webkit-box-sizing: border-box;
       /* Safari/Chrome, other WebKit */
       -moz-box-sizing: border-box;
@@ -86,6 +91,12 @@
       border-radius: 0.25rem;
     }
 
+    #print-output {
+      display: none;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
     .clickable {
       cursor: pointer;
     }
@@ -98,7 +109,7 @@
       width: 100%;
     }
 
-    .mr-3{
+    .mr-3 {
       margin-right: 1rem;
     }
 
@@ -223,6 +234,27 @@
       margin-bottom: 0.5rem;
     }
 
+    .actions {
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background-color: var(--timberwolf);
+      border-radius: 0.25rem;
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .actions button {
+      border: none;
+      outline: none;
+      background-color: var(--hunter);
+      margin-right: 0.5rem;
+      border-radius: 0.25rem;
+      color: var(--light);
+      font-size: 1.69rem;
+      height: 3rem;
+      width: 3rem;
+    }
+
     .collapse__header {
       font-size: 1.5rem;
       background-color: var(--brunswick);
@@ -261,9 +293,12 @@
       border: 1px solid black;
       box-shadow: 10px 5px 5px rgba(0, 0, 0, 0.25);
       color: black;
+      box-sizing: border-box;
+      padding: 0.375em;
     }
 
-    #resume * {
+    #resume *,
+    #print-output * {
       margin: 0;
       padding: 0;
     }
@@ -288,6 +323,25 @@
         overflow: auto;
         scrollbar-color: var(--fern) rgba(0, 0, 0, 0);
         scrollbar-width: thin;
+      }
+    }
+
+    @media print {
+
+      main,
+      header,
+      #preview {
+        display: none;
+        background-color: transparent;
+      }
+
+      body,
+      html {
+        background-color: transparent;
+      }
+
+      #print-output {
+        display: block;
       }
     }
 
@@ -335,8 +389,14 @@
   <header>
     <span>Snap Resume</span>
   </header>
+  <div id="print-output"></div>
   <div id="preview"></div>
   <main>
+    <div class="actions">
+      <button class="print">
+        <i class="fa-solid fa-print"></i>
+      </button>
+    </div>
     <form>
       <div class="collapse contact">
         <div class="collapse__header">
@@ -474,8 +534,10 @@
       const PREVIEW_PADDING = 16;
       const RESUME_RATIO = 8.5 / 11;
       const MIN_WIDTH = 100;
+      const OUTPUT_WIDTH = 700;
       const MOBILE_BREAKPOINT = 500;
       // Initialize Page Data
+      const printOutput = document.querySelector('#print-output');
       const preview = document.querySelector('#preview');
       preview.appendChild(buildLoader());
       let [
@@ -544,13 +606,12 @@
         return loader;
       }
 
-      function getRightColumn() {
-        const right = document.querySelector('#right');
+      function getRightColumn(container) {
+        const right = container.querySelector('.right');
         if (right) return right;
-        const resume = document.querySelector('#resume');
         const newRight = document.createElement('div');
-        resume.appendChild(newRight);
-        newRight.id = 'right';
+        container.appendChild(newRight);
+        newRight.classList.add('right');
         newRight.style.width = '30%';
         newRight.style.float = 'left';
         newRight.style.paddingTop = '0.2em';
@@ -568,11 +629,8 @@
         return header;
       }
 
-      function drawContactInfo() {
-        const resume = document.querySelector('#resume');
+      function drawContactInfo(container) {
         const contactInfo = document.createElement('div');
-        contactInfo.style.paddingLeft = '0.25em';
-        contactInfo.style.paddingTop = '0.25em';
 
         const name = document.createElement('h2');
         name.innerHTML = RESUME_DATA.name || "John Smith";
@@ -618,15 +676,13 @@
           contactInfo.appendChild(city);
         }
 
-        resume.appendChild(contactInfo);
+        container.appendChild(contactInfo);
       };
 
-      function drawExperiences() {
-        const resume = document.querySelector('#resume');
+      function drawExperiences(container) {
         const experiences = document.createElement('div');
         experiences.id = "experience";
         experiences.style.overflow = 'hidden';
-        experiences.style.paddingLeft = '0.25em';
         experiences.style.paddingRight = '0.25em';
         experiences.style.paddingTop = '0.2em';
         experiences.style.float = 'left';
@@ -670,12 +726,12 @@
           experiences.appendChild(experienceEle);
         });
 
-        resume.appendChild(experiences);
+        container.appendChild(experiences);
       }
 
-      function drawSkills() {
+      function drawSkills(container) {
         if (!RESUME_DATA.skills || !RESUME_DATA.skills.length) return;
-        const right = getRightColumn();
+        const right = getRightColumn(container);
         const skills = document.createElement('div');
         skills.style.display = 'flex';
         skills.style.flexDirection = 'column';
@@ -694,9 +750,9 @@
         right.appendChild(skills);
       }
 
-      function drawEducation() {
+      function drawEducation(container) {
         if (!RESUME_DATA.education || !RESUME_DATA.education.length) return;
-        const right = getRightColumn();
+        const right = getRightColumn(container);
         const education = document.createElement('div');
         education.style.display = 'flex';
         education.style.flexDirection = 'column';
@@ -725,8 +781,15 @@
         });
       };
 
-      function drawResume() {
-        console.log("drawing resume");
+      function drawResume(container) {
+        drawContactInfo(container);
+        drawExperiences(container);
+        drawSkills(container);
+        drawEducation(container);
+      }
+
+      function drawResumePreview() {
+        console.log("drawing resume Preview");
         const headerHeight = document.querySelector('header').getBoundingClientRect().height;
         const previewWidth = document.querySelector('#preview').getBoundingClientRect().width;
         const viewWidth = window.innerWidth;
@@ -766,10 +829,7 @@
         document.querySelector('#preview').innerHTML = '';
         document.querySelector('#preview').appendChild(resume);
 
-        drawContactInfo();
-        drawExperiences();
-        drawSkills();
-        drawEducation();
+        drawResume(resume);
       };
 
       function buildSortableItem(text) {
@@ -1254,7 +1314,7 @@
         unsafeWrite("EXPANDED_SECTIONS", EXPANDED_SECTIONS);
       };
 
-      function addExperience(event){
+      function addExperience(event) {
         event.preventDefault();
         const form = event.target.closest('.experience-form');
         const companyInput = form.querySelector('form .company input');
@@ -1268,7 +1328,7 @@
           bullets: [],
         };
 
-        if (!experienceObj.company || !experienceObj.title || !experienceObj.dates )
+        if (!experienceObj.company || !experienceObj.title || !experienceObj.dates)
           return;
 
         document.querySelector('.experience-form').classList.add('hidden');
@@ -1297,7 +1357,7 @@
         console.log("yeah, boy!");
         resizeCollapse(collapse);
       }
-      
+
       function writeResumeData() {
         console.log("writeResumeData");
         unsafeWrite("RESUME_DATA", RESUME_DATA);
@@ -1311,12 +1371,23 @@
         updateEducation();
 
         debouncedWriteResumeData();
-        drawResume();
+        drawResumePreview();
       }
       const debouncedUpdateResumeData = debounce((e) => updateResumeData(e), 500);
 
+      function preparePrintPreview(event) {
+        const growthAmount = OUTPUT_WIDTH / MIN_WIDTH;
+        const outputHeight = OUTPUT_WIDTH / RESUME_RATIO;
+        printOutput.innerHTML = '';
+        printOutput.style.width = `${OUTPUT_WIDTH}px`;
+        printOutput.style.height = `${outputHeight}px`;
+        printOutput.style.fontSize = `${growthAmount}em`;
+
+        drawResume(printOutput);
+      };
+
       function resizeScreen(_event) {
-        drawResume();
+        drawResumePreview();
         document.querySelectorAll('.collapse.expanded').forEach(resizeCollapse);
       }
 
@@ -1329,8 +1400,11 @@
       document.querySelector('.all-experiences button.w-100').addEventListener('click', openNewExperienceForm);
       document.querySelector('.education-form button').addEventListener('click', addEducation);
       document.querySelector('.experience-form button').addEventListener('click', addExperience);
+      document.querySelector('.actions .print').addEventListener('click', () => window.print());
+      window.addEventListener('beforeprint', preparePrintPreview);
 
-      drawResume();
+      drawResumePreview();
+      preparePrintPreview();
       EXPANDED_SECTIONS.forEach(section => {
         document.querySelector(`.collapse.${section} > .collapse__header`).dispatchEvent(new Event('click'));
       });
