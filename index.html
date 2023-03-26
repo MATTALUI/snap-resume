@@ -170,7 +170,8 @@
       width: 1.625rem;
     }
 
-    .education-form button {
+    .education-form button,
+    .experience-form button {
       border: none;
       outline: none;
       background-color: var(--hunter);
@@ -978,6 +979,7 @@
       function buildExperienceItem(experienceObj, checked = false) {
         const baseSortable = buildSortableItem();
         const span = baseSortable.querySelector('span');
+        baseSortable.querySelector('.fa-trash').addEventListener('click', removeExperience);;
 
         const resumeExperience = RESUME_DATA.experiences
           ? RESUME_DATA.experiences.find(e => (
@@ -1170,6 +1172,12 @@
         updateResumeData();
       }
 
+      function removeExperience(event) {
+        event.target.closest('.sort-item').remove();
+        resizeCollapse(document.querySelector('.collapse.experience'));
+        updateResumeData();
+      }
+
       function removeEducation(event) {
         event.target.closest('.sort-item').remove();
         resizeCollapse(document.querySelector('.collapse.education'));
@@ -1241,15 +1249,38 @@
         } else {
           newExpansions.add(name);
           resizeCollapse(collapse);
-          // const currentHeight = collapse.getBoundingClientRect().height;
-          // const contentHeight = content.getBoundingClientRect().height;
-          // const newHeight = currentHeight + contentHeight;
-          // collapse.classList.add('expanded');
-          // collapse.style.height = `${newHeight}px`;
         }
         EXPANDED_SECTIONS = [...newExpansions];
         unsafeWrite("EXPANDED_SECTIONS", EXPANDED_SECTIONS);
       };
+
+      function addExperience(event){
+        event.preventDefault();
+        const form = event.target.closest('.experience-form');
+        const companyInput = form.querySelector('form .company input');
+        const titleInput = form.querySelector('form .title input');
+        const datesInput = form.querySelector('form .dates input');
+
+        const experienceObj = {
+          company: companyInput.value,
+          title: titleInput.value,
+          dates: datesInput.value,
+          bullets: [],
+        };
+
+        if (!experienceObj.company || !experienceObj.title || !experienceObj.dates )
+          return;
+
+        document.querySelector('.experience-form').classList.add('hidden');
+        document.querySelector('.all-experiences').classList.remove('hidden');
+        document.querySelector('#experience-sorter').prepend(buildExperienceItem(experienceObj, true));
+        titleInput.value = '';
+        companyInput.value = '';
+        datesInput.value = '';
+        resizeCollapse(event.target.closest('.collapse'));
+
+        updateResumeData();
+      }
 
       function openNewEducationForm(event) {
         event.preventDefault();
@@ -1258,6 +1289,15 @@
         resizeCollapse(event.target.closest('.collapse'));
       }
 
+      function openNewExperienceForm(event) {
+        event.preventDefault();
+        const collapse = event.target.closest('.collapse');
+        collapse.querySelector('.experience-form').classList.remove('hidden');
+        collapse.querySelector('.all-experiences').classList.add('hidden');
+        console.log("yeah, boy!");
+        resizeCollapse(collapse);
+      }
+      
       function writeResumeData() {
         console.log("writeResumeData");
         unsafeWrite("RESUME_DATA", RESUME_DATA);
@@ -1286,7 +1326,9 @@
       document.querySelector('.collapse.skills .item-adder button').addEventListener('click', addSkill);
       document.querySelector('.collapse.skills .item-adder input').addEventListener('keypress', makeEnterWatcher(addSkill));
       document.querySelector('.all-educations button.w-100').addEventListener('click', openNewEducationForm);
+      document.querySelector('.all-experiences button.w-100').addEventListener('click', openNewExperienceForm);
       document.querySelector('.education-form button').addEventListener('click', addEducation);
+      document.querySelector('.experience-form button').addEventListener('click', addExperience);
 
       drawResume();
       EXPANDED_SECTIONS.forEach(section => {
