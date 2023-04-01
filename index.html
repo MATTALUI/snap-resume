@@ -553,7 +553,6 @@
         safeRead("ALL_EDUCATION", []),
         safeRead("EXPANDED_SECTIONS", ["contact"]),
       ]);
-      console.log({ RESUME_DATA });
       populateForm();
 
       async function safeRead(key, defaultValue) {
@@ -907,7 +906,7 @@
         input.addEventListener('blur', editSkill);
       }
 
-      function editEducation(event) {
+      function quickEdit(event) {
         const parent = event.target.parentNode;
         const input = event.target;
 
@@ -915,7 +914,7 @@
         span.innerHTML = input.value;
         span.classList.add('clickable');
         span.classList.add(input.classList[1]);
-        span.addEventListener('dblclick', toggleEditEducation);
+        span.addEventListener('dblclick', toggleQuickEdit);
 
         parent.replaceChild(span, input);
         updateResumeData();
@@ -935,7 +934,7 @@
         updateResumeData();
       }
 
-      function toggleEditEducation(event) {
+      function toggleQuickEdit(event) {
         const sortItem = event.target.closest('.sort-item');
         const parent = event.target.parentNode;
         const span = event.target;
@@ -949,8 +948,8 @@
         parent.replaceChild(input, span);
         input.focus();
 
-        input.addEventListener('keypress', makeEnterWatcher(editEducation));
-        input.addEventListener('blur', editEducation);
+        input.addEventListener('keypress', makeEnterWatcher(quickEdit));
+        input.addEventListener('blur', quickEdit);
       }
 
       function toggleEditExperienceBullet(event) {
@@ -995,12 +994,12 @@
         nameSpan.innerHTML = educationObj.name;
         nameSpan.classList.add('clickable');
         nameSpan.classList.add('name');
-        nameSpan.addEventListener('dblclick', toggleEditEducation);
+        nameSpan.addEventListener('dblclick', toggleQuickEdit);
 
         degreeSpan.innerHTML = educationObj.degree;
         degreeSpan.classList.add('clickable');
         degreeSpan.classList.add('degree');
-        degreeSpan.addEventListener('dblclick', toggleEditEducation);
+        degreeSpan.addEventListener('dblclick', toggleQuickEdit);
 
         educationContainer.appendChild(nameSpan);
         educationContainer.appendChild(degreeSpan);
@@ -1056,14 +1055,23 @@
 
         const companySpan = document.createElement('span');
         companySpan.innerHTML = experienceObj.company;
+        companySpan.classList.add('clickable');
+        companySpan.classList.add('company');
+        companySpan.addEventListener('dblclick', toggleQuickEdit);
         experienceContainer.appendChild(companySpan);
 
         const titleSpan = document.createElement('span');
         titleSpan.innerHTML = experienceObj.title;
+        titleSpan.classList.add('clickable');
+        titleSpan.classList.add('title');
+        titleSpan.addEventListener('dblclick', toggleQuickEdit);
         experienceContainer.appendChild(titleSpan);
 
         const datesSpan = document.createElement('span');
         datesSpan.innerHTML = experienceObj.dates;
+        datesSpan.classList.add('clickable');
+        datesSpan.classList.add('dates');
+        datesSpan.addEventListener('dblclick', toggleQuickEdit);
         experienceContainer.appendChild(datesSpan);
 
         const bulletsContainer = document.createElement('div');
@@ -1354,7 +1362,6 @@
         const collapse = event.target.closest('.collapse');
         collapse.querySelector('.experience-form').classList.remove('hidden');
         collapse.querySelector('.all-experiences').classList.add('hidden');
-        console.log("yeah, boy!");
         resizeCollapse(collapse);
       }
 
