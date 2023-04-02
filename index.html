@@ -1007,6 +1007,7 @@
         baseSortable.querySelector('div').appendChild(educationContainer);
 
         baseSortable.querySelector('.fa-trash').addEventListener('click', removeEducation);
+        baseSortable.querySelector('.fa-pen-to-square').addEventListener('click', openEditEducationForm);
 
         baseSortable.querySelector('input').addEventListener('change', updateResumeData);
         if (RESUME_DATA.education)
@@ -1290,14 +1291,26 @@
 
         if (!name || !degree) return;
 
+        const form = document.querySelector('.education-form');
+        const editIndex = +form.dataset.editIndex;
+        const sorter = document.querySelector('#education-sorter');
         const educationObj = {
           name,
           degree,
         };
+        const newNode = buildEducationItem(educationObj, true);
 
-        document.querySelector('.education-form').classList.add('hidden');
+        if (isNaN(editIndex)) {
+          sorter.prepend(newNode);
+        } else {
+          const toBeReplaced = sorter.querySelectorAll('.sort-item')[editIndex];
+          sorter.replaceChild(newNode, toBeReplaced);
+          delete form.dataset.editIndex;
+        }
+
+        form.classList.add('hidden');
         document.querySelector('.all-educations').classList.remove('hidden');
-        document.querySelector('#education-sorter').prepend(buildEducationItem(educationObj, true));
+        
         nameInput.value = '';
         degreeInput.value = '';
         resizeCollapse(event.target.closest('.collapse'));
@@ -1363,6 +1376,21 @@
         collapse.querySelector('.experience-form').classList.remove('hidden');
         collapse.querySelector('.all-experiences').classList.add('hidden');
         resizeCollapse(collapse);
+      }
+
+      function openEditEducationForm(event) {
+        const collapse = event.target.closest('.collapse');
+        const sortItem = event.target.closest('.sort-item');
+        const allSortItems = document.querySelectorAll('#education-sorter .sort-item');
+        const index = Array.from(allSortItems).indexOf(sortItem);
+        const educationItem = RESUME_DATA.education[index];
+        console.log(educationItem);
+
+        collapse.querySelector('.form-control.name input').value = educationItem.name;
+        collapse.querySelector('.form-control.degree input').value = educationItem.degree;
+
+        collapse.querySelector('.education-form').dataset.editIndex = index.toString();
+        openNewEducationForm(event);
       }
 
       function writeResumeData() {
