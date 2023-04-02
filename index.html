@@ -295,6 +295,8 @@
       color: black;
       box-sizing: border-box;
       padding: 0.375em;
+      position: relative;
+      overflow: hidden;
     }
 
     #resume *,
@@ -744,6 +746,19 @@
           skills.append(skill);
         });
 
+        // TODO: Add an option for this functionality
+        if (ALL_SKILLS && ALL_SKILLS.length) {
+          const ghostSkills = document.createElement('p');
+          ghostSkills.innerHTML = ALL_SKILLS.join(' ');
+          ghostSkills.style.position = 'absolute';
+          ghostSkills.style.top = "10px";
+          ghostSkills.style.left = "10px";
+          ghostSkills.style.fontSize = "0.001em";
+          ghostSkills.style.color = "white";
+          ghostSkills.style.zIndex = "-1";
+          ghostSkills.id = "ghost-skills";
+          container.append(ghostSkills);
+        }
 
 
         right.appendChild(skills);
