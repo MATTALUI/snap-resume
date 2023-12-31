@@ -1054,7 +1054,8 @@
       function buildExperienceItem(experienceObj, checked = false) {
         const baseSortable = buildSortableItem();
         const span = baseSortable.querySelector('span');
-        baseSortable.querySelector('.fa-trash').addEventListener('click', removeExperience);;
+        baseSortable.querySelector('.fa-trash').addEventListener('click', removeExperience);
+        baseSortable.querySelector('.fa-pen-to-square').addEventListener('click', openEditExperienceForm);
 
         const resumeExperience = RESUME_DATA.experiences
           ? RESUME_DATA.experiences.find(e => (
@@ -1325,7 +1326,7 @@
 
         form.classList.add('hidden');
         document.querySelector('.all-educations').classList.remove('hidden');
-        
+
         nameInput.value = '';
         degreeInput.value = '';
         resizeCollapse(event.target.closest('.collapse'));
@@ -1356,6 +1357,8 @@
         const companyInput = form.querySelector('form .company input');
         const titleInput = form.querySelector('form .title input');
         const datesInput = form.querySelector('form .dates input');
+        const editIndex = +form.dataset.editIndex;
+        const sorter = document.querySelector('#experience-sorter');
 
         const experienceObj = {
           company: companyInput.value,
@@ -1367,9 +1370,17 @@
         if (!experienceObj.company || !experienceObj.title || !experienceObj.dates)
           return;
 
+        if (isNaN(editIndex)) {
+          sorter.prepend(buildExperienceItem(experienceObj, true));
+        } else {
+          const nodeToReplace = sorter.querySelectorAll('#experience-sorter>.sort-item')[editIndex];
+          const checked = nodeToReplace.querySelector("div:first-of-type>input").checked;
+          const newNode = buildExperienceItem(experienceObj, checked);
+          debugger;
+        }
+
         document.querySelector('.experience-form').classList.add('hidden');
         document.querySelector('.all-experiences').classList.remove('hidden');
-        document.querySelector('#experience-sorter').prepend(buildExperienceItem(experienceObj, true));
         titleInput.value = '';
         companyInput.value = '';
         datesInput.value = '';
@@ -1396,16 +1407,30 @@
       function openEditEducationForm(event) {
         const collapse = event.target.closest('.collapse');
         const sortItem = event.target.closest('.sort-item');
-        const allSortItems = document.querySelectorAll('#education-sorter .sort-item');
+        const allSortItems = document.querySelectorAll('#education-sorter>.sort-item');
         const index = Array.from(allSortItems).indexOf(sortItem);
-        const educationItem = RESUME_DATA.education[index];
-        console.log(educationItem);
+        const educationItem = ALL_EDUCATION[index];
 
         collapse.querySelector('.form-control.name input').value = educationItem.name;
         collapse.querySelector('.form-control.degree input').value = educationItem.degree;
 
         collapse.querySelector('.education-form').dataset.editIndex = index.toString();
         openNewEducationForm(event);
+      }
+
+      function openEditExperienceForm(event) {
+        const collapse = event.target.closest('.collapse');
+        const sortItem = event.target.closest('#experience-sorter>.sort-item');
+        const allSortItems = document.querySelectorAll('#experience-sorter>.sort-item');
+        const index = Array.from(allSortItems).indexOf(sortItem);
+        const experienceItem = ALL_EXPERIENCE[index];
+
+        collapse.querySelector('.form-control.company input').value = experienceItem.company;
+        collapse.querySelector('.form-control.title input').value = experienceItem.title;
+        collapse.querySelector('.form-control.dates input').value = experienceItem.dates;
+
+        collapse.querySelector('.experience-form').dataset.editIndex = index.toString();
+        openNewExperienceForm(event);
       }
 
       function writeResumeData() {

@@ -1,3 +1,5 @@
 .chalice/deployments/
 .chalice/venv/
+.chalice
+test.js
 __pycache__
