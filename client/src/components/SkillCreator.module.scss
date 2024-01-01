@@ -1,0 +1,31 @@
+@import "../variables.module.scss";
+
+.container {
+  display: flex;
+  margin-bottom: 0.25rem;
+
+  &>input {
+    background-color: white;
+    border: none;
+    outline: none;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+    flex: 1;
+  }
+
+  &>button {
+    height: 1.5rem;
+    width: 1.5rem;
+    display: flex;
+    outline: none;
+    border: none;
+    justify-content: center;
+    align-items: center;
+    background-color: $primary;
+    color: $light;
+    border-radius: 0.25rem;
+    margin-left: 0.25rem;
+    cursor: pointer;
+  }
+}

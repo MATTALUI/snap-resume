@@ -1,4 +1,4 @@
-import { AppState, ContactInformation, LocalStorageKeys, Resume, ResumeTheme } from "../types";
+import { AppState, ContactInformation, IdentifiedString, LocalStorageKeys, Resume, ResumeTheme } from "../types";
 
 export const safeLoadLocalStorage = <T>(key: LocalStorageKeys, defaultValue: T) => {
   try {
@@ -22,6 +22,10 @@ export const updatePersistedContactInformation = (updates: Partial<Resume["conta
   const { contactInformation } = loadPersistedResume();
   Object.assign(contactInformation, updates);
   updatePersistedResume({ contactInformation });
+}
+
+export const updatePersistedAllSkills = (skills: IdentifiedString[]) => {
+  localStorage.setItem(LocalStorageKeys.Skills, JSON.stringify(skills));
 }
 
 (window as any).__reset = () => {
@@ -50,11 +54,18 @@ const defaultResume: Resume = {
   education: [],
 }
 
+const defaultSkills:IdentifiedString[] = [
+  { id: crypto.randomUUID(), value: "React.js" },
+  { id: crypto.randomUUID(), value: "Solid.js" },
+  { id: crypto.randomUUID(), value: "Climbing Trees" },
+  { id: crypto.randomUUID(), value: "Node.js" },
+];
+
 export const defaultApplicationState: AppState = {
   resume: loadPersistedResume(),
   allExperiences: safeLoadLocalStorage<AppState["allExperiences"]>(LocalStorageKeys.Resume, []),
-  allSkills: safeLoadLocalStorage<AppState["allSkills"]>(LocalStorageKeys.Resume, []),
-  allEducation: safeLoadLocalStorage<AppState["allEducation"]>(LocalStorageKeys.Resume, []),
-  allPresets: safeLoadLocalStorage<AppState["allPresets"]>(LocalStorageKeys.Resume, []),
-  options: safeLoadLocalStorage<AppState["options"]>(LocalStorageKeys.Resume, {}),
+  allSkills: safeLoadLocalStorage<AppState["allSkills"]>(LocalStorageKeys.Skills, defaultSkills),
+  allEducation: safeLoadLocalStorage<AppState["allEducation"]>(LocalStorageKeys.Education, []),
+  allPresets: safeLoadLocalStorage<AppState["allPresets"]>(LocalStorageKeys.Presets, []),
+  options: safeLoadLocalStorage<AppState["options"]>(LocalStorageKeys.Options, {}),
 };

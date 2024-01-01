@@ -6,7 +6,7 @@ const EducationControls = () => {
       title="Education"
       defaultOpen
     >
-
+      {null}
     </ControlCollapse>
   );
 }

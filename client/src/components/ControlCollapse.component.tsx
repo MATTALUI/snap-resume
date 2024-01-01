@@ -15,7 +15,7 @@ const ControlCollapse = (props: IControlCollapseProps) => {
   let contentRef: HTMLDivElement | undefined;
 
   const height = createMemo(() => {
-    if (!expanded() || !headerRef || !contentRef) return `40px`;
+    if (!expanded() || !headerRef || !contentRef) return `35px`;
     const { height: headerHeight } = headerRef.getBoundingClientRect();
     const { height: contentHeight } = contentRef.getBoundingClientRect();
     const height = headerHeight + contentHeight;
@@ -24,7 +24,9 @@ const ControlCollapse = (props: IControlCollapseProps) => {
   });
 
   onMount(() => {
-    setExpanded(defaultOpen);
+    setTimeout(() => {
+      setExpanded(defaultOpen);
+    }, 250); // 250ms animation
   });
 
 
