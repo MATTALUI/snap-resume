@@ -1,9 +1,10 @@
-import ControlCollapse from "./ControlCollapse";
+import ControlCollapse from "./ControlCollapse.component";
 
 const EducationControls = () => {
   return (
     <ControlCollapse
       title="Education"
+      defaultOpen
     >
 
     </ControlCollapse>

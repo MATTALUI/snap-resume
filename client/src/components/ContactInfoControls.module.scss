@@ -1,0 +1,22 @@
+@import "../variables.module.scss";
+
+.inputSection {
+  margin-bottom: 0.5rem;
+
+  &>label {
+    color: $dark;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  &>input {
+    width: 100%;
+    background-color: white;
+    border: none;
+    outline: none;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+  }
+}

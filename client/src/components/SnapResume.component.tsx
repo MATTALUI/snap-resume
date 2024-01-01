@@ -1,5 +1,5 @@
-import Controls from "./Controls";
-import ResumePreviewer from "./ResumePreviewer";
+import Controls from "./Controls.component";
+import ResumePreviewer from "./ResumePreviewer.component";
 import styles from "./SnapResume.module.scss";
 
 const SnapResume = () => {

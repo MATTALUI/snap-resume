@@ -1,9 +1,10 @@
-import ControlCollapse from "./ControlCollapse";
+import ControlCollapse from "./ControlCollapse.component";
 
 const ExperienceControls = () => {
   return (
     <ControlCollapse
       title="Experience"
+      defaultOpen
     >
 
     </ControlCollapse>

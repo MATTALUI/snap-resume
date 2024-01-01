@@ -1,9 +1,10 @@
-import ControlCollapse from "./ControlCollapse";
+import ControlCollapse from "./ControlCollapse.component";
 
 const OptionsControls = () => {
   return (
     <ControlCollapse
       title="Options"
+      defaultOpen
     >
       <span>Coming soon...</span>
     </ControlCollapse>

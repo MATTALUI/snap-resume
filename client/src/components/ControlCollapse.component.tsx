@@ -1,4 +1,4 @@
-import { JSX, createMemo, createSignal } from "solid-js";
+import { JSX, createMemo, createSignal, onMount } from "solid-js";
 import styles from "./ControlCollapse.module.scss";
 
 
@@ -9,7 +9,7 @@ interface IControlCollapseProps {
 }
 const ControlCollapse = (props: IControlCollapseProps) => {
   const { defaultOpen = false } = props;
-  const [expanded, setExpanded] = createSignal(defaultOpen);
+  const [expanded, setExpanded] = createSignal(false);
   const toggleExpanded = () => setExpanded(!expanded());
   let headerRef: HTMLDivElement | undefined;
   let contentRef: HTMLDivElement | undefined;
@@ -21,6 +21,10 @@ const ControlCollapse = (props: IControlCollapseProps) => {
     const height = headerHeight + contentHeight;
 
     return `${height}px`;
+  });
+
+  onMount(() => {
+    setExpanded(defaultOpen);
   });
 
 
