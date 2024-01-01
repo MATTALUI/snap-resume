@@ -1,0 +1,23 @@
+{
+  "name": "snap-resume-client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "vite",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@solidjs/router": "^0.10.5",
+    "classnames": "^2.5.1",
+    "solid-js": "^1.8.7"
+  },
+  "devDependencies": {
+    "sass": "^1.69.6",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8",
+    "vite-plugin-solid": "^2.8.0"
+  }
+}

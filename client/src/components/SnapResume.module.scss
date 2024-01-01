@@ -1,0 +1,11 @@
+@import "../variables.module.scss";
+
+.nav {
+  background-color: $primary;
+  color: $light;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  font-size: 1.3rem;
+  padding: 0.5rem;
+}

@@ -1,0 +1,23 @@
+@import "../variables.module.scss";
+
+.collapse {
+  border-radius: 0.25rem;
+  overflow: hidden;
+  transition: height 1s;
+  margin-bottom: 0.5rem;
+
+  .collapseHeader {
+    background-color: $primary;
+    color: $light;
+    padding: 0.375rem 1rem;
+    cursor: pointer;
+    & > h2 {
+      font-size: 1.125rem;
+    }
+  }
+
+  .collapseContent {
+    background-color: $primary-trans;
+    padding: 0.375rem 1rem;
+  }
+}
