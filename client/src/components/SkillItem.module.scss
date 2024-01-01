@@ -9,6 +9,16 @@
   border-bottom: 1px solid $primary-trans;
   padding: 0.25rem 0;
 
+  & input[type="text"] {
+    max-width: 10rem;
+    background-color: white;
+    border: none;
+    outline: none;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+  }
+
   & input[type="checkbox"] {
     appearance: none;
     width: 1.5rem;
@@ -52,6 +62,9 @@
     border-radius: 0.25rem;
     cursor: pointer;
     margin-left: 0.25rem;
+    &:active {
+      background-color: rgba($primary, 0.75);
+    }
   }
 }
 

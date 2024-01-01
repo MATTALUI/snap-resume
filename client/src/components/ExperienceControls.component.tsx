@@ -4,7 +4,6 @@ const ExperienceControls = () => {
   return (
     <ControlCollapse
       title="Experience"
-      defaultOpen
     >
       {null}
     </ControlCollapse>

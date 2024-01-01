@@ -16,17 +16,16 @@ const ControlCollapse = (props: IControlCollapseProps) => {
 
   const height = createMemo(() => {
     if (!expanded() || !headerRef || !contentRef) return `35px`;
-    const { height: headerHeight } = headerRef.getBoundingClientRect();
-    const { height: contentHeight } = contentRef.getBoundingClientRect();
-    const height = headerHeight + contentHeight;
+    return "fit-content";
+    // const { height: headerHeight } = headerRef.getBoundingClientRect();
+    // const { height: contentHeight } = contentRef.getBoundingClientRect();
+    // const height = headerHeight + contentHeight;
 
-    return `${height}px`;
+    // return `${height}px`;
   });
 
   onMount(() => {
-    setTimeout(() => {
-      setExpanded(defaultOpen);
-    }, 250); // 250ms animation
+    setExpanded(defaultOpen);
   });
 
 

@@ -4,7 +4,6 @@ const PresetsControls = () => {
   return (
     <ControlCollapse
       title="Presets"
-      defaultOpen
     >
       <span>Coming soon...</span>
     </ControlCollapse>

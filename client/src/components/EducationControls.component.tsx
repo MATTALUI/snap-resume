@@ -4,7 +4,6 @@ const EducationControls = () => {
   return (
     <ControlCollapse
       title="Education"
-      defaultOpen
     >
       {null}
     </ControlCollapse>

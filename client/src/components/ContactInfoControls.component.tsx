@@ -29,7 +29,6 @@ const ContactInfoControls = () => {
   return (
     <ControlCollapse
       title="Contact Information"
-      defaultOpen
     >
       <div class={styles.inputSection}>
         <label>First Name</label>
