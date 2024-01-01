@@ -8,7 +8,6 @@ const SkillsControls = () => {
   return (
     <ControlCollapse
       title="Skills"
-      defaultOpen
     >
       <SkillCreator />
       <For each={allSkills()}>

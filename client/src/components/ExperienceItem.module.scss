@@ -1,0 +1,76 @@
+@import "../variables.module.scss";
+
+.item {
+  display: flex;
+  border-bottom: 1px solid $primary-trans;
+  margin-bottom: 0.25rem;
+
+  .controls {
+    display: flex;
+    height: fit-content;
+
+    & input[type="checkbox"] {
+      appearance: none;
+      width: 1.5rem;
+      height: 1.5rem;
+      cursor: pointer;
+      border-radius: 0.25rem;
+      outline: none;
+      border: none;
+      background-color: white;
+      transition: background-color 250ms;
+      margin: 0 0.25rem;
+
+      &:checked {
+        background-color: $light;
+
+        &::after {
+          content: "⦁";
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+          color: $primary;
+          font-weight: bold;
+          font-size: 2rem;
+          margin-top: -2px;
+        }
+      }
+    }
+  }
+
+  .center {
+    flex: 1;
+
+    .company {
+      font-weight: bold;
+    }
+
+    .smol {
+      font-size: 0.85rem;
+    }
+  }
+
+  & button {
+    height: 1.5rem;
+    width: 1.5rem;
+    background-color: $primary;
+    color: $light;
+    outline: none;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    margin-left: 0.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:active {
+      background-color: rgba($primary, 0.75);
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}

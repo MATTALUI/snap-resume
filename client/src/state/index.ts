@@ -1,4 +1,4 @@
-import { AppState, ContactInformation, IdentifiedString, LocalStorageKeys, Resume, ResumeTheme } from "../types";
+import { AppState, ContactInformation, Experience, IdentifiedString, LocalStorageKeys, Resume, ResumeTheme } from "../types";
 
 export const safeLoadLocalStorage = <T>(key: LocalStorageKeys, defaultValue: T) => {
   try {
@@ -28,6 +28,10 @@ export const updatePersistedAllSkills = (skills: IdentifiedString[]) => {
   localStorage.setItem(LocalStorageKeys.Skills, JSON.stringify(skills));
 }
 
+export const updatePersistedAllExperiences = (experiences: Experience[]) => {
+  localStorage.setItem(LocalStorageKeys.Experiences, JSON.stringify(experiences));
+}
+
 (window as any).__reset = () => {
   localStorage.removeItem(LocalStorageKeys.Resume);
   localStorage.removeItem(LocalStorageKeys.Experiences);
@@ -54,17 +58,33 @@ const defaultResume: Resume = {
   education: [],
 }
 
-const defaultSkills:IdentifiedString[] = [
-  { id: crypto.randomUUID(), value: "React.js" },
-  { id: crypto.randomUUID(), value: "Solid.js" },
-  { id: crypto.randomUUID(), value: "Climbing Trees" },
-  { id: crypto.randomUUID(), value: "Node.js" },
+const defaultExperiences:Experience[] = [
+  {
+    id: crypto.randomUUID(),
+    company: "MATTALUI.IO",
+    title: "King of it All",
+    dates: "1995-Present",
+    bullets: [
+      { id: crypto.randomUUID(), value: "Took care of business" },
+      { id: crypto.randomUUID(), value: "Partied hearty" },
+    ]
+  },
+  {
+    id: crypto.randomUUID(),
+    company: "Snap Resume",
+    title: "CEO",
+    dates: "2023-Present",
+    bullets: [
+      { id: crypto.randomUUID(), value: "Built Snap resume" },
+      { id: crypto.randomUUID(), value: "used Solidjs" },
+    ]
+  },
 ];
 
 export const defaultApplicationState: AppState = {
   resume: loadPersistedResume(),
-  allExperiences: safeLoadLocalStorage<AppState["allExperiences"]>(LocalStorageKeys.Resume, []),
-  allSkills: safeLoadLocalStorage<AppState["allSkills"]>(LocalStorageKeys.Skills, defaultSkills),
+  allExperiences: safeLoadLocalStorage<AppState["allExperiences"]>(LocalStorageKeys.Experiences, defaultExperiences),
+  allSkills: safeLoadLocalStorage<AppState["allSkills"]>(LocalStorageKeys.Skills, []),
   allEducation: safeLoadLocalStorage<AppState["allEducation"]>(LocalStorageKeys.Education, []),
   allPresets: safeLoadLocalStorage<AppState["allPresets"]>(LocalStorageKeys.Presets, []),
   options: safeLoadLocalStorage<AppState["options"]>(LocalStorageKeys.Options, {}),

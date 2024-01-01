@@ -1,0 +1,52 @@
+@import "../variables.module.scss";
+
+.bulletItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+
+  &>div:first-child {
+    display: flex;
+    flex: 1;
+    align-items: flex-start;
+
+    & input[type="checkbox"] {
+      appearance: none;
+      width: 1.5rem;
+      height: 1.5rem;
+      cursor: pointer;
+      border-radius: 0.25rem;
+      outline: none;
+      border: none;
+      background-color: white;
+      transition: background-color 250ms;
+      margin: 0 0.25rem;
+
+      &:checked {
+        background-color: $light;
+
+        &::after {
+          content: "⦁";
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+          color: $primary;
+          font-weight: bold;
+          font-size: 2rem;
+          margin-top: -2px;
+        }
+      }
+    }
+
+
+    &>span {
+      flex: 1;
+    }
+  }
+
+  &>div:last-child {
+    display: flex;
+    align-items: flex-start;
+  }
+}
