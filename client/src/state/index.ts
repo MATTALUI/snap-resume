@@ -1,4 +1,4 @@
-import { AppState, ContactInformation, Experience, IdentifiedString, LocalStorageKeys, Resume, ResumeTheme } from "../types";
+import { AppState, ContactInformation, Education, Experience, IdentifiedString, LocalStorageKeys, Resume, ResumeTheme } from "../types";
 
 export const safeLoadLocalStorage = <T>(key: LocalStorageKeys, defaultValue: T) => {
   try {
@@ -81,11 +81,24 @@ const defaultExperiences:Experience[] = [
   },
 ];
 
+const defaultEducation:Education[] = [
+  {
+    id: crypto.randomUUID(),
+    institution: "BYUI",
+    degree: "Applied Technology",
+  },
+  {
+    id: crypto.randomUUID(),
+    institution: "Galvanize",
+    degree: "Web Development",
+  },
+];
+
 export const defaultApplicationState: AppState = {
   resume: loadPersistedResume(),
   allExperiences: safeLoadLocalStorage<AppState["allExperiences"]>(LocalStorageKeys.Experiences, defaultExperiences),
   allSkills: safeLoadLocalStorage<AppState["allSkills"]>(LocalStorageKeys.Skills, []),
-  allEducation: safeLoadLocalStorage<AppState["allEducation"]>(LocalStorageKeys.Education, []),
+  allEducation: safeLoadLocalStorage<AppState["allEducation"]>(LocalStorageKeys.Education, defaultEducation),
   allPresets: safeLoadLocalStorage<AppState["allPresets"]>(LocalStorageKeys.Presets, []),
   options: safeLoadLocalStorage<AppState["options"]>(LocalStorageKeys.Options, {}),
 };

@@ -7,7 +7,6 @@ const ExperienceControls = () => {
   return (
     <ControlCollapse
       title="Experience"
-      defaultOpen
     >
       <For each={allExperiences()}>
         {(item) => <ExperienceItem item={item} />}
